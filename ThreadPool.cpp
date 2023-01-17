@@ -1,37 +1,47 @@
 #include "ThreadPool.h"
 
-namespace ThreadPool {
+ThreadPool::ThreadPool(size_t num_threads) 
+    : workerThreadCount(num_threads), stop_all(false) {
+    CreateWorkers();
+}
+ThreadPool::~ThreadPool() {
+    stop_all = true;
+    taskBufferCV.notify_all();
 
-ThreadPool::ThreadPool(size_t num_threads)
-    : num_threads_(num_threads), stop_all(false) {
-  worker_threads_.reserve(num_threads_);
-  for (size_t i = 0; i < num_threads_; ++i) {
-    worker_threads_.emplace_back([this] { this->WorkerThread(); });
-  }
+    for (auto& t : workerThreads) {
+        t.join();
+    }
+}
+
+void ThreadPool::CreateWorkers() {
+    for (size_t i = 0; i < workerThreadCount; ++i) {
+        workerThreads.emplace_back([this] { this->WorkerThread(); });
+    }
 }
 
 void ThreadPool::WorkerThread() {
-  while (true) {
-    std::unique_lock<std::mutex> lock(m_job_q_);
-    cv_job_q_.wait(lock, [this] { return !this->jobs_.empty() || stop_all; });
-    if (stop_all && this->jobs_.empty()) {
-      return;
+    while (true) {
+        std::function<void()> task;
+        {
+            std::unique_lock<std::mutex> lock(taskBufferMutex);
+            taskBufferCV.wait(lock, [this] { return !this->taskBuffer.empty() || stop_all; });
+            if (stop_all && this->taskBuffer.empty()) break;
+            task = std::move(taskBuffer.front());
+            taskBuffer.pop_front();
+        }
+        task();
     }
-
-    std::function<void()> job = std::move(jobs_.front());
-    jobs_.pop();
-    lock.unlock();
-
-    job();
-  }
 }
 
-ThreadPool::~ThreadPool() {
-  stop_all = true;
-  cv_job_q_.notify_all();
+void ThreadPool::EnqueueJob(std::function<void()> f) {
 
-  for (auto& t : worker_threads_) {
-    t.join();
-  }
+    if (stop_all) {
+        throw std::runtime_error("ThreadPool »ç¿ë ÁßÁöµÊ");
+    }
+    {
+        std::lock_guard<std::mutex> lock(taskBufferMutex);
+        taskBuffer.emplace_back(f);
+    }
+    taskBufferCV.notify_one();
+    return;
 }
-}  // namespace ThreadPool

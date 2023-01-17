@@ -6,87 +6,80 @@
 #include <list>
 #include <future>
 
-class OPERATOR {
- public:
-  enum operators { PLUS = 0, MINUS, MULTIPLY, DIVIDE, NONE };
-  OPERATOR() = default;
-  OPERATOR(operators op) : op_(op) {}
-  OPERATOR(char raw) {
-    switch (raw) {
-      case '+':
-        op_ = operators::PLUS;
-        break;
-      case '-':
-        op_ = operators::MINUS;
-        break;
-      case '/':
-        op_ = operators::DIVIDE;
-        break;
-      case '*':
-        op_ = operators::MULTIPLY;
-        break;
-    }
-  }
-  int calc(const int& a, const int& b) {
-    int ret = 0;
-    switch (op_) {
-      case operators::PLUS:
-        ret = a + b;
-        break;
-      case operators::MINUS:
-        ret = a - b;
-        break;
-      case operators::DIVIDE:
-        ret = a / b;
-        break;
-      case operators::MULTIPLY:
-        ret = a * b;
-        break;
-    }
-    return ret;
-  }
-  std::string toString() {
-    std::string ret = "";
-    switch (op_) {
-      case operators::PLUS:
-        ret = '+';
-        break;
-      case operators::MINUS:
-        ret = '-';
-        break;
-      case operators::DIVIDE:
-        ret = '/';
-        break;
-      case operators::MULTIPLY:
-        ret = '*';
-        break;
-    }
-    return ret;
-  }
+class Operator;
 
- private:
-  operators op_ = operators::NONE;
+class Operator {
+public:
+	enum class OPERATOR { PLUS, MINUS, MULTIPLY, DIVIDE, NONE };
+	Operator(OPERATOR _op) : op(_op) {}
+	Operator(char raw) : op(fromChar(raw)) {}
+	Operator(const int& random_number) : op(fromRandom(random_number)) {}
+	static Operator::OPERATOR fromChar(const char& raw) {
+		switch (raw) {
+		case '+':
+			return OPERATOR::PLUS;
+		case '-':
+			return OPERATOR::MINUS;
+		case '/':
+			return OPERATOR::DIVIDE;
+		case '*':
+			return OPERATOR::MULTIPLY;
+		default:
+			return OPERATOR::NONE;
+		}
+	}
+	static OPERATOR fromRandom(const int& rand) {
+		switch (rand) {
+		case 0:
+			return OPERATOR::PLUS;
+		case 1:
+			return OPERATOR::MINUS;
+		case 2:
+			return OPERATOR::DIVIDE;
+		case 3:
+			return OPERATOR::MULTIPLY;
+		default:
+			return OPERATOR::NONE;
+		}
+	}
+	int calc(const int &a, const int &b) {
+		switch (op) {
+		case OPERATOR::PLUS:
+			return a + b;
+		case OPERATOR::MINUS:
+			return a - b;
+		case OPERATOR::DIVIDE:
+			return a / b;
+		case OPERATOR::MULTIPLY:
+			return a * b;
+		default:
+			return 0;
+		}
+	}
+	char toChar() {
+		switch (op) {
+		case OPERATOR::PLUS:
+			return '+';
+		case OPERATOR::MINUS:
+			return '-';
+		case OPERATOR::DIVIDE:
+			return '/';
+		case OPERATOR::MULTIPLY:
+			return '*';
+		default:
+			return ' ';
+		}
+	}
+
+private:
+	OPERATOR op = OPERATOR::NONE;
 };
 
-enum class INPUTTYPE { CALC = 0, TEST, STOPTEST, QUIT, ERROR };
-
-class Buffer {
- public:
-  struct calcData {
-    int first, second;
-    OPERATOR op;
-
-    std::string toString() {
-      return std::to_string(first) + ' ' + op.toString() + ' ' +
-             std::to_string(second) + " = " +
-             std::to_string(op.calc(first, second));
-    }
-  };
-
-
-  static std::string calc(Buffer::calcData& data) {
-    //printf("%s\n", data.toString().c_str());
-    return data.toString();
-  }
+struct calcData {
+	int first = 0, second = 0;
+	Operator op = Operator::OPERATOR::NONE;
 };
-static std::list<std::future<std::string>> outputList;
+
+static int calc(calcData& data) {
+	return data.op.calc(data.first, data.second);
+}
