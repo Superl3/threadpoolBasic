@@ -14,8 +14,23 @@ TestCreator::~TestCreator() {
 void TestCreator::createData() {
     std::mt19937 mtRand;
     auto createSample = [&mtRand]() -> calcData {
-        calcData a{ mtRand() % 1000 + 1, mtRand() % 1000 + 1, Operator::fromRandom(mtRand() % 4) };
-        return a;
+        calcData sample{ mtRand() % 1000 + 1, mtRand() % 1000 + 1};
+        int operator_key = mtRand() % 4;
+        switch (operator_key) {
+        case 0:
+            sample.op = OPERATOR::PLUS;
+            break;
+        case 1:
+            sample.op = OPERATOR::MINUS;
+            break;
+        case 2:
+            sample.op = OPERATOR::MULTIPLY;
+            break;
+        case 3:
+            sample.op = OPERATOR::DIVIDE;
+            break;
+        }
+        return sample;
     };
 
     test_data = new std::deque<calcData>;
@@ -23,11 +38,16 @@ void TestCreator::createData() {
         test_data->emplace_back(createSample());
 }
 
-bool TestCreator::getSingleTest(calcData& data) {
+bool TestCreator::getSingleTest(calcData* data) {
     if (test_data->empty()) return false;
     
-    data = std::move(test_data->front());
+    auto front = std::move(test_data->front());
     test_data->pop_front();
+
+    data->op = front.op; 
+    data->first = front.first;
+    data->second = front.second;
+    
     return true;
 }
 

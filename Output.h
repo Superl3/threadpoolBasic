@@ -1,29 +1,29 @@
 #pragma once
 
-#include "Buffer.h"
-
 #include<string>
 #include<fstream>
+
+class calcData;
 
 class Output {
 public:
 	Output();
 	~Output();
-
-	void process(calcData& input, const int& result, const int& duration);
+		
+	void process(calcData *input, int result, int duration);
 
 private:
 	void consoleWrite(const std::string &line);
 	void fileLogging(const std::string& line);
 
-	std::string toText(calcData& input, const int& result, const int& duration);
+	std::string toText(calcData *input, const int& result, const int& duration);
 
 	std::string filePath() {
 		return folder_path + '\\' + file_name;
 	}
 
 	bool logging_enabled = true;
-	bool console_enabled = false;
+	bool console_enabled = true;
 
 	std::string folder_path;
 	std::string file_name;

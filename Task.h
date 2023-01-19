@@ -1,28 +1,55 @@
 #pragma once
+#include<functional>
 #include<utility>
 #include<tuple>
-#include<functional>
 
-class AbstractTask {
-public :
-	virtual ~AbstractTask() {};
-	virtual void execute() = 0;
-};
+#include "PerformanceMonitor.h"
 
-template <typename Func, typename... Args>
-class Task : public AbstractTask {
-public :
-	using ReturnType = std::invoke_result_t<Func(Args...)>;;
-	using Callback = std::function<void(ReturnType)>;
-	Task(Func&& f, Callback cb, Args&&... args) :
-		func_(std::forward<Func>(f)), args_(std::forward<Args>(args)...), callback_(std::move(cb)) {
+template <typename... Args>
+class Task {
+	enum class TYPE {
+		CALC, ADD, MINUS, MULTIPLY, DIVIDE
+	};
+
+public:
+	Task()
+	{
+		init();
 	}
-	void execute() override {
-		callback_(std::apply(func_, args_));
+	Task(void* f, Args... args) : func_(f), args_(args ...)
+	{
+		init();
 	}
 
-private:
-	Func func_;
+protected:
+	TYPE task_type;
+
+	void *func_;
 	std::tuple<Args...> args_;
-	Callback callback_;
+
+	PerformanceMonitor performance_monitor;
+
+	void init() {
+		performance_monitor.setStartTimer();
+	}
+
+public:
+	void setArgs(Args... args) {
+		args_ = std::make_tuple(args...);
+	}
+
+	void setArgs(std::tuple<Args...> args) {
+		args_ = std::forward(args);
+	}
+
+	std::tuple<Args...> getArgs() {
+		return args_;
+	}
+
+	virtual void execute() {
+		performance_monitor.setEndTimer();
+	}
+
+	virtual void callback() {
+	}
 };

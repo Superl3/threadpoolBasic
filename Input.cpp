@@ -1,6 +1,7 @@
 #include "Input.h"
 
-Input::Input() {
+Input::Input(ThreadPoolManager *tpm_, Output *output_) : tpm(tpm_), output(output_)
+{
 	test_creator = new TestCreator(100);
 }
 
@@ -19,19 +20,23 @@ Input::~Input() {
 void Input::doTest() {
 	while (!stop_test) {
 
-		calcData data;
+		calcData* data = new calcData;
 		if (!test_creator->getSingleTest(data)) {
 			stop_test = true;
 			printf("Test Done\n");
 			break;
 		}
 
-		// pool->EnqueueJob(calcData::calc, data);
-		 // std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		insertTask(data);
 	}
 }
 
-Input::INPUTTYPE Input::parsedInput(const std::string& buf, calcData& parsedData) {
+void Input::insertTask(calcData* data) {
+	auto task = calcFactory(data, output);
+	tpm->AddTask(task);
+}
+
+Input::INPUTTYPE Input::parsedInput(const std::string& buf, calcData *data) {
 	auto splitData = [&buf]() -> std::vector<std::string> {
 		size_t cur = 0, prev = 0;
 		std::vector<std::string> splitedBuf;
@@ -47,6 +52,24 @@ Input::INPUTTYPE Input::parsedInput(const std::string& buf, calcData& parsedData
 		}
 		return splitedBuf;
 	};
+	auto getOperatorFromChar = [](char& input) {
+		OPERATOR op = OPERATOR::NONE;
+		switch (input) {
+		case '+':
+			op = OPERATOR::PLUS;
+			break;
+		case '-':
+			op = OPERATOR::MINUS;
+			break;
+		case '*':
+			op = OPERATOR::MULTIPLY;
+			break;
+		case '/':
+			op = OPERATOR::DIVIDE;
+			break;
+		}
+		return op;
+	};
 	std::vector<std::string> splitedBuf = splitData();
 
 	INPUTTYPE ret = INPUTTYPE::ERROR;
@@ -60,9 +83,9 @@ Input::INPUTTYPE Input::parsedInput(const std::string& buf, calcData& parsedData
 		if (isLegit(splitedBuf[0], NUMBER) && isLegit(splitedBuf[1], OPERATORS) &&
 			isLegit(splitedBuf[2], NUMBER) && splitedBuf[1].length() == 1) {
 
-			parsedData.first = atoi(splitedBuf[0].c_str());
-			parsedData.op = Operator(splitedBuf[1][0]);
-			parsedData.second = atoi(splitedBuf[2].c_str());
+			data->first = atoi(splitedBuf[0].c_str());
+			data->op = getOperatorFromChar(splitedBuf[1][0]);
+			data->second = atoi(splitedBuf[2].c_str());
 			ret = INPUTTYPE::CALC;
 		}
 	}
@@ -90,11 +113,11 @@ void Input::inputLoop() {
 	while (!stop_input) {
 		char kbInput = _getch();
 		if (kbInput == 13) {
-			calcData data;
+			calcData* data = new calcData;
 			auto type = parsedInput(inputBuffer, data);
 			switch (type) {
 			case INPUTTYPE::CALC: {
-				//pool->EnqueueJob(calcData::calc, data);
+				insertTask(data);
 				break;
 			}
 			case INPUTTYPE::TEST: {
@@ -103,7 +126,6 @@ void Input::inputLoop() {
 
 					std::thread testThread(&Input::doTest, this);
 					testThread.detach();
-
 				}
 				break;
 			}

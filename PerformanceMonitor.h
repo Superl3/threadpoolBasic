@@ -7,21 +7,24 @@ public:
 	PerformanceMonitor() {};
 
 	void setStartTimer() {
-		start_time = std::chrono::steady_clock::now();
-		start_time_checked = true;
+		if (!start_time_checked) {
+			start_time = std::chrono::steady_clock::now();
+			start_time_checked = true;
+		}
 	}
 	void setEndTimer() {
-		end_time = std::chrono::steady_clock::now();
-		end_time_checked = true;
+		if (!end_time_checked) {
+			end_time = std::chrono::steady_clock::now();
+			end_time_checked = true;
+		}
 	}
-	bool getRunningTime(std::chrono::steady_clock::duration &elapsed_time) {
+	bool getRunningTime(int &elapsed_time) {
 		if (!start_time_checked || !end_time_checked)
 			return false;
 
-		elapsed_time = start_time - end_time;
+		elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
 		return true;
 	}
-
 private:
 
 	bool start_time_checked = false, end_time_checked = false;

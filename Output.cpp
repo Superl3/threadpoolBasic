@@ -1,4 +1,5 @@
 #include "Output.h"
+#include "Calc.h"
 
 Output::Output() {
 	folder_path = "";
@@ -10,7 +11,7 @@ Output::~Output() {
 		write_file.close();
 }
 
-void Output::process(calcData& input, const int& result, const int& duration) {
+void Output::process(calcData* input,  int result, int duration) {
 
 	auto single_line_text = toText(input, result, duration);
 
@@ -21,8 +22,8 @@ void Output::process(calcData& input, const int& result, const int& duration) {
 		consoleWrite(single_line_text);
 }
 
-std::string Output::toText(calcData& input, const int& result, const int& duration) {
-	return std::to_string(input.first) + "\t" + input.op.toChar() + "\t" +  std::to_string(input.second) + "\t" + std::to_string(result) + "\t" + std::to_string(duration) + "\n";
+std::string Output::toText(calcData* input, const int& result, const int& duration) {
+	return std::to_string(input->first) + "\t" + operatorToChar(input->op) + "\t" +  std::to_string(input->second) + "\t" + std::to_string(result) + "\t" + std::to_string(duration) + "\n";
 }
 
 #include<iostream>

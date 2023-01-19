@@ -10,6 +10,8 @@
 #include <thread>
 #include <vector>
 
+#include "Task.h"
+
 class ThreadPool {
  public:
   ThreadPool(size_t num_threads);

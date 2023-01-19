@@ -1,7 +1,8 @@
 #pragma once
 
 #include <deque>
-#include "Buffer.h"
+
+#include "Calc.h"
 
 class TestCreator {
 public:
@@ -10,7 +11,7 @@ public:
 
 	void createData();
 	std::deque<calcData>* getCreatedTest();
-	bool getSingleTest(calcData& singleData);
+	bool getSingleTest(calcData* singleData);
 
 private:
 	std::deque<calcData>* test_data;
