@@ -22,7 +22,7 @@ public:
 		if (!start_time_checked || !end_time_checked)
 			return false;
 
-		elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
+		elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
 		return true;
 	}
 private:

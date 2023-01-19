@@ -102,11 +102,13 @@ Input::INPUTTYPE Input::parsedInput(const std::string& buf, calcData *data) {
 		else if (toLower(splitedBuf[0]) == "exit" || splitedBuf[0] == "quit")
 			ret = INPUTTYPE::QUIT;
 	}
-	if (ret != INPUTTYPE::ERROR) printf("%s\n", buf.c_str());
+	if (ret != INPUTTYPE::ERROR);
 	return ret;
 }
 
 #include <conio.h>
+
+#include<iostream>
 
 void Input::inputLoop() {
 	std::string inputBuffer = "";
@@ -138,8 +140,16 @@ void Input::inputLoop() {
 			}
 			}
 			inputBuffer = "";
+			std::cout << '\n';
 			continue;
 		}
-		inputBuffer += kbInput;
+		if (kbInput == 8) {
+			std::cout << "\b \b";
+			inputBuffer.erase(inputBuffer.end() - 1);
+		}
+		else {
+			std::cout << kbInput;
+			inputBuffer += kbInput;
+		}
 	}
 }
