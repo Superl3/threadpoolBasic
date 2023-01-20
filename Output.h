@@ -3,11 +3,11 @@
 #include<string>
 #include<fstream>
 
-class calcData;
+struct calcData;
 
 class Output {
 public:
-	Output();
+	Output(std::string file_name);
 	~Output();
 		
 	void process(calcData *input, int result, int duration);

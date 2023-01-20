@@ -16,6 +16,9 @@ public:
 	~Input();
 
 	void execute();
+	bool isDone() {
+		return stop_input;
+	}
 private:
 	enum class INPUTTYPE { CALC = 0, TEST, STOPTEST, QUIT, ERROR };
 
@@ -23,6 +26,8 @@ private:
 	void doTest();
 	INPUTTYPE parsedInput(const std::string& buf, calcData *data);
 	void insertTask(calcData* data);
+
+	void printUsage();
 
 	bool stop_input = false;
 	bool stop_test = false;

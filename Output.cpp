@@ -1,9 +1,8 @@
 #include "Output.h"
 #include "Calc.h"
 
-Output::Output() {
+Output::Output(std::string file_name_) : file_name(file_name_) {
 	folder_path = "";
-	file_name = "test.txt";
 }
 
 Output::~Output() {

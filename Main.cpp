@@ -14,21 +14,26 @@ int add(int a, int b) {
 
 int main(int argc, char* argv[]) {
 
-	int threadCount = 100;
-	if (argc >= 2) threadCount = atoi(argv[1]);
+	int thread_count = 100;
+	if (argc >= 2) thread_count = atoi(argv[1]);
 
-	int maxQueueSize = 100;
-	if (argc >= 3) maxQueueSize = atoi(argv[2]);
+	size_t max_queue_size = 100;
+	if (argc >= 3) max_queue_size = atoi(argv[2]);
 
-	Task<int, int> t(add, 3, 5);
-	//t.execute();
+	std::string log_file_name;
+	if (argc >= 4) log_file_name.assign(argv[3], strlen(argv[3]));
 
-	ThreadPoolManager* tpm = new ThreadPoolManager(1);
+	int test_case_count = 1000;
+	if (argc >= 5) test_case_count = atoi(argv[5]);
 
-	Output *output = new Output();
+	int output_thread_count = 1;
+
+	ThreadPoolManager* tpm = new ThreadPoolManager(thread_count, output_thread_count, max_queue_size);
+
+	Output *output = new Output(log_file_name);
 
 	Input input(tpm, output);
 	input.execute();
 
-	while (true) {};
+	while (!input.isDone()) {};
 }

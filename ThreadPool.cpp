@@ -1,7 +1,7 @@
 #include "ThreadPool.h"
 
-ThreadPool::ThreadPool(size_t num_threads) 
-    : workerThreadCount(num_threads), stop_all(false) {
+ThreadPool::ThreadPool(const size_t& num_threads, size_t max_queue_size_)
+    : thread_count(num_threads), max_queue_size(max_queue_size_), stop_all(false) {
     CreateWorkers();
 }
 ThreadPool::~ThreadPool() {
@@ -14,7 +14,7 @@ ThreadPool::~ThreadPool() {
 }
 
 void ThreadPool::CreateWorkers() {
-    for (size_t i = 0; i < workerThreadCount; ++i) {
+    for (size_t i = 0; i < thread_count; ++i) {
         workerThreads.emplace_back([this] { this->WorkerThread(); });
     }
 }
@@ -33,15 +33,25 @@ void ThreadPool::WorkerThread() {
     }
 }
 
-void ThreadPool::EnqueueJob(std::function<void()> f) {
+bool ThreadPool::EnqueueJob(std::function<void()> f) {
+
+    bool isInserted = false;
 
     if (stop_all) {
         throw std::runtime_error("ThreadPool 사용 중지됨");
     }
-    {
-        std::lock_guard<std::mutex> lock(taskBufferMutex);
-        taskBuffer.emplace_back(f);
+	else {
+		if (taskBuffer.size() < max_queue_size) {
+            {
+                std::lock_guard<std::mutex> lock(taskBufferMutex);
+                taskBuffer.emplace_back(f);
+            }
+            taskBufferCV.notify_one();
+            isInserted = true;
+        }
+        else {
+            throw std::runtime_error("ThreadPool 작업큐 가득 참");
+        }
     }
-    taskBufferCV.notify_one();
-    return;
+    return isInserted;
 }
