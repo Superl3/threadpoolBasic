@@ -1,8 +1,8 @@
 #include "Input.h"
 
-Input::Input(ThreadPoolManager *tpm_, Output *output_) : tpm(tpm_), output(output_)
+Input::Input(ThreadPoolManager *tpm_, Output *output_, size_t test_case_count_)
+	: tpm(tpm_), output(output_), test_creator(new TestCreator(test_case_count_))
 {
-	test_creator = new TestCreator(100);
 }
 
 void Input::execute() {

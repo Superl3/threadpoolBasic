@@ -62,13 +62,7 @@
     <ClInclude Include="ThreadPoolManager.hpp">
       <Filter>ThreadPool</Filter>
     </ClInclude>
-    <ClInclude Include="WorkPool.h">
-      <Filter>ThreadPool</Filter>
-    </ClInclude>
     <ClInclude Include="Task.h">
-      <Filter>ThreadPool</Filter>
-    </ClInclude>
-    <ClInclude Include="WorkPool.hpp">
       <Filter>ThreadPool</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">
