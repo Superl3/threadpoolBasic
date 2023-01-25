@@ -9,8 +9,8 @@ void ThreadPoolManager::AddTask(Calc* c) {
 
 	auto workAndResult = [c, this] {
 		c->execute();
-		resultPool.EnqueueJob([c] {c->callback(); });
+		resultPool.insertTask([c] {c->callback(); });
 	};
 
-	taskPool.EnqueueJob(workAndResult);
+	taskPool.insertTask(workAndResult);
 }

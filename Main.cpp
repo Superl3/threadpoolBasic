@@ -1,16 +1,6 @@
-﻿#include <functional>
-#include "Input.h"
+﻿#include "Input.h"
 #include "Output.h"
-
-#include "Task.h"
-
 #include "ThreadPoolManager.h"
-
-#include <iostream>
-
-int add(int a, int b) {
-	return a + b;
-}
 
 int main(int argc, char* argv[]) {
 

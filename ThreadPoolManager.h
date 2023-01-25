@@ -13,5 +13,3 @@ private:
 	ThreadPool taskPool;
 	ThreadPool resultPool;
 };
-
-#include "ThreadPoolManager.hpp"

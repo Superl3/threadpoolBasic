@@ -18,28 +18,26 @@ class ThreadPool {
   ~ThreadPool();
 
   // return false if queue is full or threadpool done
-  bool EnqueueJob(std::function<void()> f);
+  bool insertTask(std::function<void()> f);
 
  private:
   // 총 Worker 쓰레드의 개수.
   const size_t max_queue_size;
-  const size_t thread_count;
+  const size_t worker_thread_count;
 
   // Worker 쓰레드를 보관하는 벡터.
-  std::deque<std::thread> workerThreads;
+  std::deque<std::thread> worker_threads;
   // 할일들을 보관하는 job 큐.
-  std::deque<std::function<void()>> taskBuffer;
+  std::deque<std::function<void()>> task_buffer;
   // 위의 job 큐를 위한 cv 와 m.
-  std::condition_variable taskBufferCV;
-  std::mutex taskBufferMutex;
+  std::condition_variable task_buffer_cv;
+  std::mutex task_buffer_mutex;
 
   // 모든 쓰레드 종료
   bool stop_all;
 
-  void CreateWorkers();
+  void createWorkers();
 
   // Worker 쓰레드
-  void WorkerThread();
+  void work();
 };
-
-#include "ThreadPool.hpp"

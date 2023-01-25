@@ -1,39 +1,39 @@
 #include "ThreadPool.h"
 
 ThreadPool::ThreadPool(const size_t& num_threads, size_t max_queue_size_)
-    : thread_count(num_threads), max_queue_size(max_queue_size_), stop_all(false) {
-    CreateWorkers();
+    : worker_thread_count(num_threads), max_queue_size(max_queue_size_), stop_all(false) {
+    createWorkers();
 }
 ThreadPool::~ThreadPool() {
     stop_all = true;
-    taskBufferCV.notify_all();
+    task_buffer_cv.notify_all();
 
-    for (auto& t : workerThreads) {
+    for (auto& t : worker_threads) {
         t.join();
     }
 }
 
-void ThreadPool::CreateWorkers() {
-    for (size_t i = 0; i < thread_count; ++i) {
-        workerThreads.emplace_back([this] { this->WorkerThread(); });
+void ThreadPool::createWorkers() {
+    for (size_t i = 0; i < worker_thread_count; ++i) {
+        worker_threads.emplace_back([this] { this->work(); });
     }
 }
 
-void ThreadPool::WorkerThread() {
+void ThreadPool::work() {
     while (true) {
         std::function<void()> task;
         {
-            std::unique_lock<std::mutex> lock(taskBufferMutex);
-            taskBufferCV.wait(lock, [this] { return !this->taskBuffer.empty() || stop_all; });
-            if (stop_all && this->taskBuffer.empty()) break;
-            task = std::move(taskBuffer.front());
-            taskBuffer.pop_front();
+            std::unique_lock<std::mutex> lock(task_buffer_mutex);
+            task_buffer_cv.wait(lock, [this] { return !this->task_buffer.empty() || stop_all; });
+            if (stop_all && this->task_buffer.empty()) break;
+            task = std::move(task_buffer.front());
+            task_buffer.pop_front();
         }
         task();
     }
 }
 
-bool ThreadPool::EnqueueJob(std::function<void()> f) {
+bool ThreadPool::insertTask(std::function<void()> f) {
 
     bool isInserted = false;
 
@@ -41,12 +41,12 @@ bool ThreadPool::EnqueueJob(std::function<void()> f) {
         throw std::runtime_error("ThreadPool »ç¿ë ÁßÁöµÊ");
     }
 	else {
-		if (taskBuffer.size() < max_queue_size) {
+		if (task_buffer.size() < max_queue_size) {
             {
-                std::lock_guard<std::mutex> lock(taskBufferMutex);
-                taskBuffer.emplace_back(f);
+                std::lock_guard<std::mutex> lock(task_buffer_mutex);
+                task_buffer.emplace_back(f);
             }
-            taskBufferCV.notify_one();
+            task_buffer_cv.notify_one();
             isInserted = true;
         }
         else {

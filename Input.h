@@ -21,10 +21,10 @@ public:
 	}
 private:
 	enum class INPUTTYPE { CALC = 0, TEST, STOPTEST, QUIT, ERROR };
+	INPUTTYPE parsedInput(const std::string& buf, calcData* data);
 
-	void inputLoop();
 	void doTest();
-	INPUTTYPE parsedInput(const std::string& buf, calcData *data);
+	void inputLoop();
 	void insertTask(calcData* data);
 
 	void printUsage();

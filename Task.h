@@ -7,9 +7,6 @@
 
 template <typename... Args>
 class Task {
-	enum class TYPE {
-		CALC, ADD, MINUS, MULTIPLY, DIVIDE
-	};
 
 public:
 	Task()
@@ -22,7 +19,6 @@ public:
 	}
 
 protected:
-	TYPE task_type;
 
 	void *func_;
 	std::tuple<Args...> args_;

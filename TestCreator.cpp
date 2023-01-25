@@ -11,7 +11,7 @@ TestCreator::~TestCreator() {
     test_data = nullptr;
 }
 
-void TestCreator::createData() {
+void TestCreator::createData() {    
     std::mt19937 mtRand;
     auto createSample = [&mtRand]() -> calcData {
         calcData sample{ mtRand() % 1000 + 1, mtRand() % 1000 + 1};

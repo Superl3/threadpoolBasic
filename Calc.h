@@ -20,6 +20,9 @@ protected:
 	calcData* input_ref;
 	Output* output_handler;
 
+	void init() {
+	};
+
 public:
 	Calc(calcData* data, Output* out) : input_ref(data), output_handler(out), Task() {
 		init();
@@ -27,9 +30,6 @@ public:
 	decltype(calc_func) get() {
 		return calc_func;
 	}
-
-	void init() {
-	};
 
 	void execute() {
 		result = calc_func(input_ref->first, input_ref->second);
@@ -40,10 +40,6 @@ public:
 		int elapsed_time = 0;
 		bool bSuccess = performance_monitor.getRunningTime(elapsed_time);
 		if (bSuccess) output_handler->process(input_ref, result, elapsed_time);
-	}
-
-	void setFunc(std::function<int(int, int)> f) {
-		calc_func = f;
 	}
 
 	char displayOperator() {
@@ -69,7 +65,7 @@ public:
 
 class Minus : public Calc {
 protected:
-	void init() {
+	void init(){
 		calc_func = [](const int& a, const int& b) { return a - b; };
 	}
 

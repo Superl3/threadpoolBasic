@@ -53,22 +53,13 @@
     <ClInclude Include="ThreadPool.h">
       <Filter>ThreadPool</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadPool.hpp">
-      <Filter>ThreadPool</Filter>
-    </ClInclude>
     <ClInclude Include="ThreadPoolManager.h">
-      <Filter>ThreadPool</Filter>
-    </ClInclude>
-    <ClInclude Include="ThreadPoolManager.hpp">
       <Filter>ThreadPool</Filter>
     </ClInclude>
     <ClInclude Include="Task.h">
       <Filter>ThreadPool</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">
-      <Filter>IO</Filter>
-    </ClInclude>
-    <ClInclude Include="output.hpp">
       <Filter>IO</Filter>
     </ClInclude>
     <ClInclude Include="PerformanceMonitor.h">

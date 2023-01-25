@@ -152,14 +152,11 @@
     <ClInclude Include="Calc.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Output.h" />
-    <ClInclude Include="output.hpp" />
     <ClInclude Include="PerformanceMonitor.h" />
     <ClInclude Include="Task.h" />
     <ClInclude Include="TestCreator.h" />
     <ClInclude Include="ThreadPool.h" />
-    <ClInclude Include="ThreadPool.hpp" />
     <ClInclude Include="ThreadPoolManager.h" />
-    <ClInclude Include="ThreadPoolManager.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
