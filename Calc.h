@@ -3,6 +3,8 @@
 #include "Task.h"
 #include "Output.h"
 
+#include<thread>
+
 enum class OPERATOR { PLUS, MINUS, MULTIPLY, DIVIDE, NONE };
 
 struct calcData {
@@ -19,6 +21,7 @@ protected:
 
 	calcData* input_ref;
 	Output* output_handler;
+	bool isTest = false;
 
 	void init() {
 	};
@@ -27,19 +30,27 @@ public:
 	Calc(calcData* data, Output* out) : input_ref(data), output_handler(out), Task() {
 		init();
 	}
+	
+	void setTest() {
+		isTest = true;
+	}
+
 	decltype(calc_func) get() {
 		return calc_func;
 	}
 
 	void execute() {
+		std::this_thread::sleep_for(timeTaskSleep);
 		result = calc_func(input_ref->first, input_ref->second);
 		performance_monitor.setEndTimer();
 	}
 
 	void callback() {
-		int elapsed_time = 0;
-		bool bSuccess = performance_monitor.getRunningTime(elapsed_time);
-		if (bSuccess) output_handler->process(input_ref, result, elapsed_time);
+		//if (!isTest) {
+			int elapsed_time = 0;
+			bool bSuccess = performance_monitor.getRunningTime(elapsed_time);
+			if (bSuccess) output_handler->process(input_ref, result, elapsed_time);
+		//}
 	}
 
 	char displayOperator() {

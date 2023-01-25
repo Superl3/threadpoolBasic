@@ -1,7 +1,8 @@
+#include <algorithm>
 #include "Input.h"
 
-Input::Input(ThreadPoolManager *tpm_, Output *output_, size_t test_case_count_)
-	: tpm(tpm_), output(output_), test_creator(new TestCreator(test_case_count_))
+Input::Input(PerformanceMonitor* test_time_checker_, ThreadPoolManager* tpm_, Output* output_, size_t test_case_count_)
+	: tpm(tpm_), output(output_), test_creator(new TestCreator(test_case_count_)), test_time_checker(test_time_checker_)
 {
 }
 
@@ -9,9 +10,12 @@ void Input::execute() {
 	input_thread = std::thread(&Input::inputLoop, this);
 }
 
-void Input::insertTask(calcData* data) {
+void Input::insertTask(calcData* data, bool isTest) {
 	auto task = calcFactory(data, output);
+	if (isTest) task->setTest();
 	tpm->AddTask(task);
+
+	input_database.push_back(data);
 }
 
 Input::~Input() {
@@ -20,6 +24,9 @@ Input::~Input() {
 
 	delete test_creator;
 	test_creator = nullptr;
+
+	//delete test_time_checker;
+	//test_time_checker = nullptr;
 }
 
 #include <conio.h>
@@ -74,17 +81,18 @@ void Input::inputLoop() {
 }
 
 void Input::doTest() {
+	test_time_checker->setStartTimer();
 	while (!stop_test) {
 
 		calcData* data = new calcData;
 		if (!test_creator->getSingleTest(data)) {
 			stop_test = true;
-			printf("Test Done\n");
 			break;
 		}
 
-		insertTask(data);
+		insertTask(data, true);
 	}
+	stop_input = true;
 }
 
 void Input::printUsage() {
@@ -93,7 +101,7 @@ void Input::printUsage() {
 	std::cout << usage_string;
 }
 
-Input::INPUTTYPE Input::parsedInput(const std::string& buf, calcData *data) {
+Input::INPUTTYPE Input::parsedInput(const std::string& buf, calcData* data) {
 	auto splitData = [&buf]() -> std::vector<std::string> {
 		size_t cur = 0, prev = 0;
 		std::vector<std::string> splitedBuf;
@@ -104,7 +112,7 @@ Input::INPUTTYPE Input::parsedInput(const std::string& buf, calcData *data) {
 			if (cur == -1) item = buf.substr(prev);
 			else item = buf.substr(prev, cur - prev);
 
-			if(item.length() > 0)
+			if (item.length() > 0)
 				splitedBuf.push_back(item);
 
 			prev = cur + 1;

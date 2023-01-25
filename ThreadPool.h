@@ -1,24 +1,21 @@
 #pragma once
 
-#include <chrono>
-#include <condition_variable>
-#include <cstdio>
-#include <functional>
-#include <future>
-#include <mutex>
-#include <queue>
+#include <deque>
 #include <thread>
-#include <vector>
-
-#include "Task.h"
+#include <mutex>
+#include <functional>
 
 class ThreadPool {
  public:
-  ThreadPool(const size_t &num_threads, size_t queue_size = 10000);
+  ThreadPool(const size_t &num_threads, size_t queue_size = 100000);
   ~ThreadPool();
 
   // return false if queue is full or threadpool done
   bool insertTask(std::function<void()> f);
+
+  bool isEmpty() {
+	  return task_buffer.empty();
+  }
 
  private:
   // 총 Worker 쓰레드의 개수.

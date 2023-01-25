@@ -12,7 +12,7 @@
 
 class Input {
 public:
-	Input(ThreadPoolManager *tpm_, Output *output, size_t test_case_count_);
+	Input(PerformanceMonitor* test_time_checker_, ThreadPoolManager *tpm_, Output *output, size_t test_case_count_);
 	~Input();
 
 	void execute();
@@ -25,7 +25,7 @@ private:
 
 	void doTest();
 	void inputLoop();
-	void insertTask(calcData* data);
+	void insertTask(calcData* data, bool isTest = false);
 
 	void printUsage();
 
@@ -34,9 +34,12 @@ private:
 
 	std::thread input_thread;
 	TestCreator* test_creator = nullptr;
+	PerformanceMonitor* test_time_checker = nullptr;
+
+
 	ThreadPoolManager* tpm = nullptr;
 
 	Output* output = nullptr;
 
-	std::vector<calcData*> input_database;
+	std::deque<calcData*> input_database;
 };
