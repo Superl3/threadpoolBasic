@@ -9,7 +9,7 @@ struct calcData;
 
 class Output {
 public:
-	Output(OverallPerformanceMonitor * overall_performance_monitor_, std::string file_name, bool isTest = false);
+	Output(std::string file_name, bool isTest = false);
 	~Output();
 		
 	void process(calcData *input, int result, int duration);
@@ -31,8 +31,6 @@ private:
 	std::string file_name;
 
 	std::ofstream write_file;
-
-	OverallPerformanceMonitor* overall_performance_monitor = nullptr;
 
 	//std::mutex consoleWriteMutex;
 };

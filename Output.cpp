@@ -1,7 +1,7 @@
 #include "Output.h"
 #include "Calc.h"
 
-Output::Output(OverallPerformanceMonitor* overall_performance_monitor_, std::string file_name_, bool isTest) : file_name(file_name_), overall_performance_monitor(overall_performance_monitor_){
+Output::Output(std::string file_name_, bool isTest) : file_name(file_name_){
 	folder_path = "";
 
 	if (isTest) {
@@ -16,8 +16,6 @@ Output::~Output() {
 }
 
 void Output::process(calcData* input,  int result, int duration) {
-
-	overall_performance_monitor->addTask<std::chrono::milliseconds>(duration);
 
 	auto single_line_text = toText(input, result, duration);
 

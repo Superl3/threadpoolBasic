@@ -13,6 +13,8 @@ public:
 		return taskPool->isEmpty(); 
 	}
 
+	void StopForTestEnd();
+
 private:
 	ThreadPool *taskPool = nullptr;
 	ThreadPool *resultPool = nullptr;

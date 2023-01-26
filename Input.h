@@ -12,7 +12,7 @@
 
 class Input {
 public:
-	Input(PerformanceMonitor* test_time_checker_, ThreadPoolManager *tpm_, Output *output, size_t test_case_count_);
+	Input(GlobalPerformanceMonitor* test_time_checker_, ThreadPoolManager *tpm_, Output *output, size_t test_case_count_);
 	~Input();
 
 	void execute();
@@ -34,7 +34,7 @@ private:
 
 	std::thread input_thread;
 	TestCreator* test_creator = nullptr;
-	PerformanceMonitor* test_time_checker = nullptr;
+	GlobalPerformanceMonitor* test_time_checker = nullptr;
 
 
 	ThreadPoolManager* tpm = nullptr;

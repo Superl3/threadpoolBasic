@@ -5,13 +5,25 @@ ThreadPool::ThreadPool(const size_t& num_threads, size_t max_queue_size_)
     createWorkers();
 }
 ThreadPool::~ThreadPool() {
+    stopWorkers();
+}
+
+void ThreadPool::stopWorkers() {
     stop_all = true;
     task_buffer_cv.notify_all();
 
     for (auto& t : worker_threads) {
         t.join();
     }
+    worker_threads.clear();
 }
+
+void ThreadPool::restartWorkers() {
+    stopWorkers();
+    stop_all = false;
+    createWorkers();
+}
+
 
 void ThreadPool::createWorkers() {
     for (size_t i = 0; i < worker_thread_count; ++i) {

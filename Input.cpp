@@ -1,7 +1,7 @@
 #include <algorithm>
 #include "Input.h"
 
-Input::Input(PerformanceMonitor* test_time_checker_, ThreadPoolManager* tpm_, Output* output_, size_t test_case_count_)
+Input::Input(GlobalPerformanceMonitor* test_time_checker_, ThreadPoolManager* tpm_, Output* output_, size_t test_case_count_)
 	: tpm(tpm_), output(output_), test_creator(new TestCreator(test_case_count_)), test_time_checker(test_time_checker_)
 {
 }
@@ -70,8 +70,10 @@ void Input::inputLoop() {
 			continue;
 		}
 		if (kbInput == 8) {
-			std::cout << "\b \b";
-			inputBuffer.erase(inputBuffer.end() - 1);
+			if (inputBuffer.size() > 0) {
+				std::cout << "\b \b";
+				inputBuffer.erase(inputBuffer.end() - 1);
+			}
 		}
 		else {
 			std::cout << kbInput;
@@ -81,7 +83,7 @@ void Input::inputLoop() {
 }
 
 void Input::doTest() {
-	test_time_checker->setStartTimer();
+	test_time_checker->testStart();
 	while (!stop_test) {
 
 		calcData* data = new calcData;
@@ -97,7 +99,7 @@ void Input::doTest() {
 
 void Input::printUsage() {
 	std::string usage_string =
-		"threadpoolBasic (작업스레드 수) (작업큐 사이즈) (로그 파일명) (테스트데이터 수)\n\n숫자' '기호' '숫자\"를 입력하시면 연산이 실행됩니다.\ntest : 사전에 생성해 둔 데이터를 바탕으로 테스트를 실행합니다.\nstoptest : test가 진행되는 도중 중단합니다\nquit : 프로그램을 종료합니다.";
+		"threadpoolBasic (작업스레드 수) (작업큐 사이즈) (로그 파일명) (테스트데이터 수)\n\n숫자 기호 숫자\"를 입력하시면 연산이 실행됩니다. (예: 1 + 3)\ntest : 사전에 생성해 둔 데이터를 바탕으로 테스트를 실행합니다.\nstoptest : test가 진행되는 도중 중단합니다\nquit : 프로그램을 종료합니다.\n\n콘솔 및 파일 출력 양식은 다음과 같습니다:\n입력\t\t\t결과\t소요시간(ms)";
 	std::cout << usage_string;
 }
 

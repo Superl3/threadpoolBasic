@@ -17,6 +17,8 @@ class ThreadPool {
 	  return task_buffer.empty();
   }
 
+  void restartWorkers();
+
  private:
   // 총 Worker 쓰레드의 개수.
   const size_t max_queue_size;
@@ -34,6 +36,7 @@ class ThreadPool {
   bool stop_all;
 
   void createWorkers();
+  void stopWorkers();
 
   // Worker 쓰레드
   void work();

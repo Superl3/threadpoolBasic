@@ -9,7 +9,7 @@
 
 int main(int argc, char* argv[]) {
 
-	int thread_count = 10;
+	int thread_count = 300;
 	if (argc >= 2) thread_count = atoi(argv[1]);
 
 	size_t max_queue_size = 100000;
@@ -18,14 +18,14 @@ int main(int argc, char* argv[]) {
 	std::string log_file_name = "defaultLog.txt";
 	if (argc >= 4) log_file_name.assign(argv[3], strlen(argv[3]));
 
-	int test_case_count = 10000;
+	int test_case_count = 1000;
 	if (argc >= 5) test_case_count = atoi(argv[4]);
 
 	int output_thread_count = 1;
 
-	OverallPerformanceMonitor* test_time_checker = new OverallPerformanceMonitor();
+	GlobalPerformanceMonitor* test_time_checker = new GlobalPerformanceMonitor();
 	ThreadPoolManager* tpm = new ThreadPoolManager(thread_count, output_thread_count, max_queue_size);
-	Output *output = new Output(test_time_checker, log_file_name, true);
+	Output *output = new Output(log_file_name);
 
 	Input *input = new Input(test_time_checker, tpm, output, test_case_count);
 	input->execute();
@@ -37,9 +37,10 @@ int main(int argc, char* argv[]) {
 
 	int duration;
 	if (test_time_checker->getRunningTime(duration)) {
-		std::cout << "TESTCASE COUNT : " << test_case_count << "\n" <<
-			"AVERAGE TIME PER TASK : " << test_time_checker->getAverageRunningTime<timeStandard>() << "ms\n" <<
-			"TOTAL RUNNING TIME : " << duration << "ms\n";
+		std::cout << "THREAD COUNT : " << thread_count << " TESTCASE COUNT : " << test_case_count << "\n" <<
+			//"AVERAGE TIME PER TASK : " << test_time_checker->getAverageRunningTime<timeStandard>() << "ms\n" <<
+			"TOTAL RUNNING TIME : " << duration << "ms\n" <<
+			"AVERAGE TIME PER TASK : " << duration / test_case_count << "ms\n";
 	}
 
 	delete output;

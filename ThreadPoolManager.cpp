@@ -23,3 +23,7 @@ void ThreadPoolManager::AddTask(Calc* c) {
 
 	taskPool->insertTask(workAndResult);
 }
+
+void ThreadPoolManager::StopForTestEnd() {
+
+}

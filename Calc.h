@@ -46,11 +46,11 @@ public:
 	}
 
 	void callback() {
-		//if (!isTest) {
+		if (!isTest) {
 			int elapsed_time = 0;
 			bool bSuccess = performance_monitor.getRunningTime(elapsed_time);
 			if (bSuccess) output_handler->process(input_ref, result, elapsed_time);
-		//}
+		}
 	}
 
 	char displayOperator() {
