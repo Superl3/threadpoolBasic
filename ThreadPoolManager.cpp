@@ -14,6 +14,25 @@ ThreadPoolManager::~ThreadPoolManager() {
 
 }
 
+std::string ThreadPoolManager::getTPMinfo() {
+	std::string result = "";
+
+	result += "ThreadPoolManager Info\n";
+	result += "***************************************\n";
+	result += "Work Pool (thread size : " + std::to_string(taskPool->getThreadCount()) + ", queue size : " + std::to_string(taskPool->getQueueSize()) + ")\n";
+	result += "---------------------------------------\n";
+	result += "currently working thread count : " + std::to_string(taskPool->getCurrentWorkingThread()) + '\n';
+	result += "queued task count : " + std::to_string(taskPool->getQueuedTaskCount()) + '\n';
+	result += "=======================================\n";
+	result += "Result Pool (thread size : " + std::to_string(resultPool->getThreadCount()) + ", queue size : " + std::to_string(resultPool->getQueueSize()) + ")\n";
+	result += "---------------------------------------\n";
+	result += "currently working thread count : " + std::to_string(resultPool->getCurrentWorkingThread()) + '\n';
+	result += "queued task count : " + std::to_string( resultPool->getQueuedTaskCount() )+ '\n';
+	result += "***************************************\n";
+
+	return result;
+}
+
 void ThreadPoolManager::AddTask(Calc* c) {
 	
 	auto workAndResult = [c, this] {

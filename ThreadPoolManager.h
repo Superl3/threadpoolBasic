@@ -11,6 +11,8 @@ public:
 	void AddTask(Calc* c);
 	void StopForTestEnd();
 
+	std::string getTPMinfo();
+
 	size_t getWorkThreadCount() { return taskPool->getThreadCount(); }
 
 private:

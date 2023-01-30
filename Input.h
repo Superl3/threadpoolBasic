@@ -20,13 +20,14 @@ public:
 		return stop_input;
 	}
 private:
-	enum class INPUTTYPE { CALC = 0, TEST, STOPTEST, QUIT, ERROR };
+	enum class INPUTTYPE { CALC = 0, TEST, STOPTEST, QUIT, INFO, ERROR };
 	INPUTTYPE parsedInput(const std::string& buf, calcData* data);
 
 	void doTest();
 	void inputLoop();
 	void insertTask(calcData* data, bool isTest = false);
 
+	void printTPMInfo();
 	void printUsage();
 
 	bool stop_input = false;
