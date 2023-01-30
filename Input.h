@@ -12,7 +12,7 @@
 
 class Input {
 public:
-	Input(GlobalPerformanceMonitor* test_time_checker_, ThreadPoolManager *tpm_, Output *output, size_t test_case_count_);
+	Input(ThreadPoolManager *tpm_, Output *output, size_t test_case_count_);
 	~Input();
 
 	void execute();

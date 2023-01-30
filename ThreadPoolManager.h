@@ -9,11 +9,9 @@ public:
 	~ThreadPoolManager();
 
 	void AddTask(Calc* c);
-	bool isEmpty() { 
-		return taskPool->isEmpty(); 
-	}
-
 	void StopForTestEnd();
+
+	size_t getWorkThreadCount() { return taskPool->getThreadCount(); }
 
 private:
 	ThreadPool *taskPool = nullptr;

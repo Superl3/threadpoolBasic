@@ -13,11 +13,8 @@ class ThreadPool {
   // return false if queue is full or threadpool done
   bool insertTask(std::function<void()> f);
 
-  bool isEmpty() {
-	  return task_buffer.empty();
-  }
-
   void restartWorkers();
+  size_t getThreadCount() { return worker_thread_count; }
 
  private:
   // 총 Worker 쓰레드의 개수.

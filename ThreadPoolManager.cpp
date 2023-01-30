@@ -25,5 +25,5 @@ void ThreadPoolManager::AddTask(Calc* c) {
 }
 
 void ThreadPoolManager::StopForTestEnd() {
-
+	taskPool->restartWorkers();
 }

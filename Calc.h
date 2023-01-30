@@ -30,6 +30,9 @@ public:
 	Calc(calcData* data, Output* out) : input_ref(data), output_handler(out), Task() {
 		init();
 	}
+	Calc() : Task() {
+		init();
+	}
 	
 	void setTest() {
 		isTest = true;
@@ -40,7 +43,7 @@ public:
 	}
 
 	void execute() {
-		std::this_thread::sleep_for(timeTaskSleep);
+		timeTaskSleep;
 		result = calc_func(input_ref->first, input_ref->second);
 		performance_monitor.setEndTimer();
 	}
@@ -59,9 +62,11 @@ public:
 };
 
 class Plus : public Calc {
+private:
+	static int plusFunc(const int& a, const int& b) { return a + b; };
 protected:
 	void init() {
-		calc_func = [](const int& a, const int& b) { return a + b; };
+		calc_func = plusFunc;
 	}
 
 public:
@@ -75,9 +80,11 @@ public:
 };
 
 class Minus : public Calc {
+private:
+	static int minusFunc(const int& a, const int& b) { return a - b; };
 protected:
 	void init(){
-		calc_func = [](const int& a, const int& b) { return a - b; };
+		calc_func = minusFunc;
 	}
 
 public:
@@ -90,9 +97,11 @@ public:
 };
 
 class Multiply : public Calc {
+private:
+	static int multiplyFunc(const int& a, const int& b) { return a * b; };
 protected:
 	void init() {
-		calc_func = [](const int& a, const int& b) { return a * b; };
+		calc_func = multiplyFunc;
 	}
 
 public:
@@ -105,9 +114,11 @@ public:
 };
 
 class Divide : public Calc {
+private:
+	static int divideFunc(const int& a, const int& b) { return a / b; };
 protected:
 	void init() {
-		calc_func = [](const int& a, const int& b) { return a / b; };
+		calc_func = divideFunc;
 	}
 
 public:

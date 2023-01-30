@@ -7,8 +7,6 @@ TestCreator::TestCreator(size_t test_size_input) : test_size(test_size_input) {
 }
 
 TestCreator::~TestCreator() {
-    delete test_data;
-    test_data = nullptr;
 }
 
 void TestCreator::createData() {    
@@ -33,24 +31,31 @@ void TestCreator::createData() {
         return sample;
     };
 
-    test_data = new std::deque<calcData>;
-    for(int i = 0 ; i < test_size; i++)
-        test_data->emplace_back(createSample());
+    test_data.clear();
+
+    for (int i = 0; i < test_size; i++) {
+
+        auto temp = createSample();
+
+        calcData* data = new calcData();
+        data->first = temp.first;
+        data->second = temp.second;
+        data->op = temp.op;
+
+        test_data.emplace_back(data);
+    }
+
 }
 
 bool TestCreator::getSingleTest(calcData* data) {
-    if (test_data->empty()) return false;
+    if (test_data.empty()) return false;
     
-    auto front = std::move(test_data->front());
-    test_data->pop_front();
+    data = std::move(test_data.front());
+    test_data.pop_front();
 
-    data->op = front.op; 
-    data->first = front.first;
-    data->second = front.second;
-    
     return true;
 }
 
-std::deque<calcData>* TestCreator::getCreatedTest() {
+std::deque<calcData*> TestCreator::getCreatedTest() {
     return test_data;
 }

@@ -10,10 +10,10 @@ public:
 	~TestCreator();
 
 	void createData();
-	std::deque<calcData>* getCreatedTest();
+	std::deque<calcData*> getCreatedTest();
 	bool getSingleTest(calcData* singleData);
 
 private:
-	std::deque<calcData>* test_data;
+	std::deque<calcData*> test_data;
 	const size_t test_size;
 };

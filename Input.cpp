@@ -1,8 +1,8 @@
 #include <algorithm>
 #include "Input.h"
 
-Input::Input(GlobalPerformanceMonitor* test_time_checker_, ThreadPoolManager* tpm_, Output* output_, size_t test_case_count_)
-	: tpm(tpm_), output(output_), test_creator(new TestCreator(test_case_count_)), test_time_checker(test_time_checker_)
+Input::Input(ThreadPoolManager* tpm_, Output* output_, size_t test_case_count_)
+	: tpm(tpm_), output(output_), test_creator(new TestCreator(test_case_count_))
 {
 }
 
@@ -15,7 +15,7 @@ void Input::insertTask(calcData* data, bool isTest) {
 	if (isTest) task->setTest();
 	tpm->AddTask(task);
 
-	input_database.push_back(data);
+	if(!isTest) input_database.push_back(data);
 }
 
 Input::~Input() {
@@ -45,12 +45,12 @@ void Input::inputLoop() {
 				break;
 			}
 			case INPUTTYPE::TEST: {
-				if (!stop_test) {
+				//if (!stop_test) {
 					stop_test = false;
 
 					std::thread testThread(&Input::doTest, this);
 					testThread.detach();
-				}
+				//}
 				break;
 			}
 			case INPUTTYPE::STOPTEST: {
@@ -83,18 +83,22 @@ void Input::inputLoop() {
 }
 
 void Input::doTest() {
+	test_time_checker = new GlobalPerformanceMonitor();
+	auto testData = test_creator->getCreatedTest();
 	test_time_checker->testStart();
-	while (!stop_test) {
-
-		calcData* data = new calcData;
-		if (!test_creator->getSingleTest(data)) {
-			stop_test = true;
-			break;
-		}
-
+	for (auto data : testData) {
 		insertTask(data, true);
 	}
-	stop_input = true;
+	tpm->StopForTestEnd();
+	test_time_checker->setEndTimer();
+
+	int duration;
+	if (test_time_checker->getRunningTime(duration)) {
+		std::cout << "THREAD COUNT : " << tpm->getWorkThreadCount() << " TESTCASE COUNT : " << testData.size() << "\n" <<
+			"TOTAL RUNNING TIME : " << duration << "ms\n";
+	}
+	delete test_time_checker;
+	stop_test = true;
 }
 
 void Input::printUsage() {
