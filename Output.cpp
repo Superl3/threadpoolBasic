@@ -1,13 +1,8 @@
 #include "Output.h"
 #include "Calc.h"
 
-Output::Output(std::string file_name_, bool isTest) : file_name(file_name_){
+Output::Output(std::string file_name_) : file_name(file_name_){
 	folder_path = "";
-
-	if (isTest) {
-		logging_enabled = true;
-		console_enabled = false;
-	}
 }
 
 Output::~Output() {
@@ -15,14 +10,12 @@ Output::~Output() {
 		write_file.close();
 }
 
-void Output::process(calcData* input,  int result, int duration) {
+void Output::process(calcData* input,  int result, int duration, bool isTest) {
 
 	auto single_line_text = toText(input, result, duration);
 
-	if (logging_enabled)
-		fileLogging(single_line_text);
-
-	if (console_enabled)
+	fileLogging(single_line_text);
+	if(!isTest)
 		consoleWrite(single_line_text);
 }
 

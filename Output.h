@@ -9,10 +9,10 @@ struct calcData;
 
 class Output {
 public:
-	Output(std::string file_name, bool isTest = false);
+	Output(std::string file_name);
 	~Output();
 		
-	void process(calcData *input, int result, int duration);
+	void process(calcData *input, int result, int duration, bool isTest = false);
 
 private:
 	void consoleWrite(const std::string &line);

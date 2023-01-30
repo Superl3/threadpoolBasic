@@ -43,9 +43,7 @@ void ThreadPool::work() {
             task = std::move(task_buffer.front());
             task_buffer.pop_front();
         }
-       // std::cout << "작업 처리 시작\n";
         task();
-       // std::cout << "작업 처리 종료\n";
     }
 }
 
