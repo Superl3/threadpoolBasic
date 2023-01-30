@@ -15,7 +15,7 @@ void Input::insertTask(calcData* data, bool isTest) {
 	if (isTest) task->setTest();
 	tpm->AddTask(task);
 
-	if(!isTest) input_database.push_back(data);
+	if (!isTest) input_database.push_back(data);
 }
 
 Input::~Input() {
@@ -47,15 +47,16 @@ void Input::inputLoop() {
 			}
 			case INPUTTYPE::TEST: {
 				//if (!stop_test) {
-					stop_test = false;
+				stop_test = false;
 
-					std::thread testThread(&Input::doTest, this);
-					testThread.detach();
+				std::thread testThread(&Input::doTest, this);
+				testThread.detach();
 				//}
 				break;
 			}
 			case INPUTTYPE::STOPTEST: {
 				stop_test = true;
+				tpm->ForceQuitTest();
 				break;
 			}
 			case INPUTTYPE::INFO: {
@@ -94,12 +95,14 @@ void Input::doTest() {
 		insertTask(data, true);
 	}
 	tpm->StopForTestEnd();
-	test_time_checker->setEndTimer();
 
-	int duration;
-	if (test_time_checker->getRunningTime(duration)) {
-		std::cout << "THREAD COUNT : " << tpm->getWorkThreadCount() << " TESTCASE COUNT : " << testData.size() << "\n" <<
-			"TOTAL RUNNING TIME : " << duration << "ms\n";
+	if (!stop_test) {
+		test_time_checker->setEndTimer();
+		int duration;
+		if (test_time_checker->getRunningTime(duration)) {
+			std::cout << "THREAD COUNT : " << tpm->getWorkThreadCount() << " TESTCASE COUNT : " << testData.size() << "\n" <<
+				"TOTAL RUNNING TIME : " << duration << "ms\n";
+		}
 	}
 	delete test_time_checker;
 	stop_test = true;

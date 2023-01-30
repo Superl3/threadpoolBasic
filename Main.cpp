@@ -9,7 +9,7 @@
 
 int main(int argc, char* argv[]) {
 
-	int thread_count = 10;
+	int thread_count = 3;
 	if (argc >= 2) thread_count = atoi(argv[1]);
 
 	size_t max_queue_size = 1000;
@@ -18,10 +18,10 @@ int main(int argc, char* argv[]) {
 	std::string log_file_name = "defaultLog.txt";
 	if (argc >= 4) log_file_name.assign(argv[3], strlen(argv[3]));
 
-	int test_case_count = 1000;
+	int test_case_count = 300;
 	if (argc >= 5) test_case_count = atoi(argv[4]);
 
-	int output_thread_count = 1;
+	int output_thread_count = 10;
 
 	ThreadPoolManager* tpm = new ThreadPoolManager(thread_count, output_thread_count, max_queue_size);
 	Output *output = new Output(log_file_name);
@@ -31,6 +31,7 @@ int main(int argc, char* argv[]) {
 
 	while (!input->isDone());
 
+	delete tpm;
 	delete output;
 	delete input;
 }

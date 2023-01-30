@@ -15,6 +15,7 @@ public:
 	bool insertTask(std::function<void()> f);
 
 	void restartWorkers();
+	void forceRestartWorkers();
 	size_t getThreadCount() { return worker_thread_count; }
 	size_t getQueueSize() { return max_queue_size; }
 

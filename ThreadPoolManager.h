@@ -10,6 +10,7 @@ public:
 
 	void AddTask(Calc* c);
 	void StopForTestEnd();
+	void ForceQuitTest();
 
 	std::string getTPMinfo();
 
