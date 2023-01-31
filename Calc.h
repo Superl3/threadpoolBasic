@@ -49,7 +49,6 @@ public:
 	}
 
 	void callback() {
-
 		for(int i = 0; i < 3;i++)
 			timeTaskSleep;
 		int elapsed_time = 0;

@@ -15,7 +15,7 @@ ThreadPoolManager::~ThreadPoolManager() {
 }
 
 std::string ThreadPoolManager::getTPMinfo() {
-	std::string result = "";
+	std::string result = "\n";
 
 	result += "ThreadPoolManager Info\n";
 	result += "***************************************\n";
@@ -28,7 +28,7 @@ std::string ThreadPoolManager::getTPMinfo() {
 	result += "---------------------------------------\n";
 	result += "currently working thread count : " + std::to_string(resultPool->getCurrentWorkingThread()) + '\n';
 	result += "queued task count : " + std::to_string( resultPool->getQueuedTaskCount() )+ '\n';
-	result += "***************************************\n";
+	result += "***************************************\n\n";
 
 	return result;
 }

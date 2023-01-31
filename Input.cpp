@@ -110,7 +110,7 @@ void Input::doTest() {
 
 void Input::printUsage() {
 	std::string usage_string =
-		"threadpoolBasic (작업스레드 수) (작업큐 사이즈) (로그 파일명) (테스트데이터 수)\n\n숫자 기호 숫자\"를 입력하시면 연산이 실행됩니다. (예: 1 + 3)\ntest : 사전에 생성해 둔 데이터를 바탕으로 테스트를 실행합니다.\nstoptest : test가 진행되는 도중 중단합니다\ninfo : 스레드풀의 정보를 출력합니다.\nquit : 프로그램을 종료합니다.\n\n콘솔 및 파일 출력 양식은 다음과 같습니다:\n입력\t\t\t결과\t소요시간(ms)";
+		"\nthreadpoolBasic (작업스레드 수) (작업큐 사이즈) (로그 파일명) (테스트데이터 수)\n\n숫자 기호 숫자\"를 입력하시면 연산이 실행됩니다. (예: 1 + 3)\ntest : 사전에 생성해 둔 데이터를 바탕으로 테스트를 실행합니다.\nstoptest : test가 진행되는 도중 중단합니다\ninfo : 스레드풀의 정보를 출력합니다.\nquit : 프로그램을 종료합니다.\n\n콘솔 및 파일 출력 양식은 다음과 같습니다:\n입력\t\t\t결과\t소요시간(ms)\n\n";
 	std::cout << usage_string;
 }
 void Input::printTPMInfo() {
