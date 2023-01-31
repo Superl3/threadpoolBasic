@@ -9,7 +9,7 @@
 #include "Calc.h"
 
 #include "Output.h"
-
+#include<iostream>
 class Input {
 public:
 	Input(ThreadPoolManager *tpm_, Output *output, size_t test_case_count_);

@@ -28,9 +28,9 @@ int main(int argc, char* argv[]) {
 
 	Input *input = new Input(tpm, output, test_case_count);
 	input->execute();
-
-	while (!input->isDone());
-
+	while (!input->isDone()) {
+		timeTaskSleep;
+	}
 	delete tpm;
 	delete output;
 	delete input;
