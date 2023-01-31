@@ -1,6 +1,7 @@
 #include <algorithm>
 #include "Input.h"
 
+#include<iostream>
 Input::Input(ThreadPoolManager* tpm_, Output* output_, size_t test_case_count_)
 	: tpm(tpm_), output(output_), test_creator(new TestCreator(test_case_count_))
 {
@@ -10,12 +11,15 @@ void Input::execute() {
 	input_thread = std::thread(&Input::inputLoop, this);
 }
 
-void Input::insertTask(calcData* data, bool isTest) {
+bool Input::insertTask(calcData* data, bool isTest) {
+	bool isInserted = true;
 	auto task = calcFactory(data, output);
 	if (isTest) task->setTest();
-	tpm->AddTask(task);
+	isInserted = tpm->AddTask(task);
 
 	if (!isTest) input_database.push_back(data);
+
+	return isInserted;
 }
 
 Input::~Input() {
@@ -30,7 +34,6 @@ Input::~Input() {
 }
 
 #include <conio.h>
-#include<iostream>
 
 void Input::inputLoop() {
 	std::string inputBuffer = "";
@@ -91,8 +94,13 @@ void Input::doTest() {
 	test_time_checker = new GlobalPerformanceMonitor();
 	auto testData = test_creator->getCreatedTest();
 	test_time_checker->testStart();
+
 	for (auto data : testData) {
-		insertTask(data, true);
+		if (!insertTask(data, true)) {
+			std::cout << "ERROR Occurred while testing.\n";
+			stop_test = true;
+			break;
+		}
 	}
 	tpm->StopForTestEnd();
 
@@ -104,7 +112,7 @@ void Input::doTest() {
 				"TOTAL RUNNING TIME : " << duration << "ms\n";
 		}
 	}
-	delete test_time_checker;
+	delete test_time_checker; 
 	stop_test = true;
 }
 

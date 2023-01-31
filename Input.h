@@ -25,7 +25,7 @@ private:
 
 	void doTest();
 	void inputLoop();
-	void insertTask(calcData* data, bool isTest = false);
+	bool insertTask(calcData* data, bool isTest = false);
 
 	void printTPMInfo();
 	void printUsage();

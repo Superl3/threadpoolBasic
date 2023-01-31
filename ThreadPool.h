@@ -8,7 +8,7 @@
 
 class ThreadPool {
 public:
-	ThreadPool(const size_t& num_threads, size_t queue_size = 100000);
+	ThreadPool(const size_t& num_threads, size_t queue_size = -1);
 	~ThreadPool();
 
 	// return false if queue is full or threadpool done

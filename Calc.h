@@ -43,14 +43,11 @@ public:
 	}
 
 	void execute() {
-		timeTaskSleep;
 		result = calc_func(input_ref->first, input_ref->second);
 		performance_monitor.setEndTimer();
 	}
 
 	void callback() {
-		for(int i = 0; i < 3;i++)
-			timeTaskSleep;
 		int elapsed_time = 0;
 		bool bSuccess = performance_monitor.getRunningTime(elapsed_time);
 		if (bSuccess) output_handler->process(input_ref, result, elapsed_time, isTest);

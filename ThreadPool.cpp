@@ -76,10 +76,10 @@ bool ThreadPool::insertTask(std::function<void()> f) {
 	bool isInserted = false;
 
 	if (stop_all) {
-		throw std::runtime_error("ThreadPool 사용 중지됨");
+		;
 	}
 	else {
-		if (task_buffer.size() < max_queue_size) {
+		if (task_buffer.size() < max_queue_size || max_queue_size == -1) {
 			{
 				std::lock_guard<std::mutex> lock(task_buffer_mutex);
 				task_buffer.emplace_back(f);
@@ -88,7 +88,7 @@ bool ThreadPool::insertTask(std::function<void()> f) {
 			isInserted = true;
 		}
 		else {
-			throw std::runtime_error("ThreadPool 작업큐 가득 참");
+			;
 		}
 	}
 	return isInserted;
