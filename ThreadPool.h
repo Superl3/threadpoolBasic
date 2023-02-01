@@ -8,7 +8,7 @@
 
 class ThreadPool {
 public:
-	ThreadPool(const size_t& num_threads, size_t queue_size = -1);
+	ThreadPool(const int& num_threads, int queue_size = -1);
 	~ThreadPool();
 
 	// return false if queue is full or threadpool done
@@ -16,8 +16,8 @@ public:
 
 	void restartWorkers();
 	void forceRestartWorkers();
-	size_t getThreadCount() { return worker_thread_count; }
-	size_t getQueueSize() { return max_queue_size; }
+	int getThreadCount() { return worker_thread_count; }
+	int getQueueSize() { return max_queue_size; }
 
 	int getCurrentWorkingThread();
 	int getQueuedTaskCount();
@@ -26,8 +26,8 @@ private:
 
 	std::map<std::thread::id, bool> worker_thread_status;
 	// 총 Worker 쓰레드의 개수.
-	const size_t max_queue_size;
-	const size_t worker_thread_count;
+	const int max_queue_size;
+	const int worker_thread_count;
 
 	// Worker 쓰레드를 보관하는 벡터.
 	std::deque<std::thread> worker_threads;

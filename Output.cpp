@@ -2,7 +2,6 @@
 #include "Calc.h"
 
 Output::Output(std::string file_name_) : file_name(file_name_){
-	folder_path = "";
 }
 
 Output::~Output() {
@@ -29,7 +28,9 @@ void Output::consoleWrite(const std::string& line) {
 }
 
 void Output::fileLogging(const std::string& line) {
-	if (!write_file.is_open())
-		write_file.open(file_name);
-	write_file.write(line.c_str(), line.size());
+	if (file_name != "none") {
+		if (!write_file.is_open())
+			write_file.open(file_name);
+		write_file.write(line.c_str(), line.size());
+	}
 }

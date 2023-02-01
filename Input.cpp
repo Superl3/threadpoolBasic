@@ -36,6 +36,9 @@ Input::~Input() {
 #include <conio.h>
 
 void Input::inputLoop() {
+
+	printUsage();
+
 	std::string inputBuffer = "";
 	while (!stop_input) {
 		char kbInput = _getch();
@@ -95,11 +98,21 @@ void Input::doTest() {
 	auto testData = test_creator->getCreatedTest();
 	test_time_checker->testStart();
 
-	for (auto data : testData) {
-		if (!insertTask(data, true)) {
-			std::cout << "ERROR Occurred while testing.\n";
-			stop_test = true;
-			break;
+	if (!tpm->isDisabled()) {
+		for (auto data : testData) {
+			if (!insertTask(data, true)) {
+				std::cout << "ERROR Occurred while testing.\n";
+				stop_test = true;
+			}
+			if (stop_test) break;
+		}
+	}
+	else {
+		for (auto data : testData) {
+			auto calc = calcFactory(data, output);
+			calc->setTest();
+			calc->execute();
+			if (stop_test) break;
 		}
 	}
 	tpm->StopForTestEnd();

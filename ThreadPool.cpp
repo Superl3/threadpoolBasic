@@ -1,6 +1,6 @@
 #include "ThreadPool.h"
 
-ThreadPool::ThreadPool(const size_t& num_threads, size_t max_queue_size_)
+ThreadPool::ThreadPool(const int& num_threads, int max_queue_size_)
 	: worker_thread_count(num_threads), max_queue_size(max_queue_size_), stop_all(false) {
 	createWorkers();
 }
@@ -32,9 +32,9 @@ void ThreadPool::restartWorkers() {
 
 
 void ThreadPool::createWorkers() {
-	for (size_t i = 0; i < worker_thread_count; ++i) {
-		worker_threads.emplace_back([this] { this->work(); });
-	}
+	if(worker_thread_count > 0)
+		for (size_t i = 0; i < worker_thread_count; ++i) 
+			worker_threads.emplace_back([this] { this->work(); });
 }
 
 #include<iostream>
