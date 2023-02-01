@@ -5,16 +5,17 @@
 
 class ThreadPoolManager {
 public:
-	ThreadPoolManager(const size_t& work_thread_count, const size_t& output_thread_count, size_t& max_queue_size);
+	ThreadPoolManager(const int& work_thread_count, const int& output_thread_count, int& max_queue_size);
 	~ThreadPoolManager();
 
 	bool AddTask(Calc* c);
 	void StopForTestEnd();
 	void ForceQuitTest();
+	bool isDisabled() { return getWorkThreadCount() == -1; }
 
 	std::string getTPMinfo();
 
-	size_t getWorkThreadCount() { return taskPool->getThreadCount(); }
+	int getWorkThreadCount() { return taskPool->getThreadCount(); }
 
 private:
 	ThreadPool *taskPool = nullptr;

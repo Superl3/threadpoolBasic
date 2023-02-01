@@ -1,6 +1,6 @@
 #include "ThreadPool.h"
 
-ThreadPool::ThreadPool(const size_t& num_threads, size_t max_queue_size_)
+ThreadPool::ThreadPool(const int& num_threads, int max_queue_size_)
 	: worker_thread_count(num_threads), max_queue_size(max_queue_size_), stop_all(false) {
 	createWorkers();
 }
@@ -32,39 +32,41 @@ void ThreadPool::restartWorkers() {
 
 
 void ThreadPool::createWorkers() {
-	for (size_t i = 0; i < worker_thread_count; ++i) {
-		worker_threads.emplace_back([this] { this->work(); });
-	}
+	if(worker_thread_count > 0)
+		for (size_t i = 0; i < worker_thread_count; ++i) 
+			worker_threads.emplace_back([this] { this->work(); });
 }
 
 #include<iostream>
-
 void ThreadPool::work() {
 	std::thread::id thread_id = std::this_thread::get_id();
-	//std::cout << thread_id << '\n';
-	worker_thread_status[thread_id] = false;
 	while (true) {
+
+		worker_thread_status[thread_id] = false;
 		std::function<void()> task;
 		{
 			std::unique_lock<std::mutex> lock(task_buffer_mutex);
 			task_buffer_cv.wait(lock, [this] { return !this->task_buffer.empty() || stop_all; });
 			if (stop_all && this->task_buffer.empty()) break;
-			worker_thread_status[thread_id] = true;
 			task = std::move(task_buffer.front());
 			task_buffer.pop_front();
 		}
 
+		worker_thread_status[thread_id] = true;
 		task();
-		worker_thread_status[thread_id] = false;
 	}
 }
 
 int ThreadPool::getCurrentWorkingThread() {
 	int cnt = 0;
-	for (const auto& onWork : worker_thread_status) {
-		if (onWork.second)
-			cnt += 1;
+	{
+		std::lock_guard<std::mutex> lk(status_mutex);
+		for (const auto& onWork : worker_thread_status) {
+			if (onWork.second)
+				cnt += 1;
+		}
 	}
+	
 	return cnt;
 }
 int ThreadPool::getQueuedTaskCount() {
