@@ -13,8 +13,7 @@ void Input::execute() {
 
 bool Input::insertTask(calcData* data, bool isTest) {
 	bool isInserted = true;
-	auto task = calcFactory(data, output);
-	if (isTest) task->setTest();
+	auto task = calcFactory(data, output, isTest);
 	isInserted = tpm->AddTask(task);
 
 	if (!isTest) input_database.push_back(data);
@@ -109,8 +108,7 @@ void Input::doTest() {
 	}
 	else {
 		for (auto data : testData) {
-			auto calc = calcFactory(data, output);
-			calc->setTest();
+			auto calc = calcFactory(data, output, true);
 			calc->execute();
 			if (stop_test) break;
 		}
@@ -119,11 +117,8 @@ void Input::doTest() {
 
 	if (!stop_test) {
 		test_time_checker->setEndTimer();
-		int duration;
-		if (test_time_checker->getRunningTime(duration)) {
-			std::cout << "THREAD COUNT : " << tpm->getWorkThreadCount() << " TESTCASE COUNT : " << testData.size() << "\n" <<
-				"TOTAL RUNNING TIME : " << duration << "ms\n";
-		}
+		std::cout << "THREAD COUNT : " << tpm->getWorkThreadCount() << " TESTCASE COUNT : " << testData.size() << "\n" <<
+			"TOTAL RUNNING TIME : " << test_time_checker->getRunningTime() << "ms\n";
 	}
 	delete test_time_checker; 
 	stop_test = true;

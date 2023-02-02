@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Task.h"
 #include "Output.h"
 
 #include<thread>
@@ -14,43 +13,31 @@ struct calcData {
 
 class Output;
 
-class Calc : public Task<int, int> {
+class Calc {
+private : 
+	PerformanceMonitor performance_monitor;
+
 protected:
-	std::function<int(int, int)> calc_func = NULL;
+	virtual int calculate(const int& a, const int& b) = 0;
 	int result = 0;
 
 	calcData* input_ref;
 	Output* output_handler;
-	bool isTest = false;
 
-	void init() {
-	};
+	const bool is_test;
 
 public:
-	Calc(calcData* data, Output* out) : input_ref(data), output_handler(out), Task() {
-		init();
-	}
-	Calc() : Task() {
-		init();
-	}
-	
-	void setTest() {
-		isTest = true;
+	Calc(calcData* data, Output* out, bool isTest_ = false) : input_ref(data), output_handler(out), is_test(isTest_) {
 	}
 
-	decltype(calc_func) get() {
-		return calc_func;
-	}
-
-	void execute() {
-		result = calc_func(input_ref->first, input_ref->second);
+	int execute() {
+		result = calculate(input_ref->first, input_ref->second);
 		performance_monitor.setEndTimer();
+		return result;
 	}
 
-	void callback() {
-		int elapsed_time = 0;
-		bool bSuccess = performance_monitor.getRunningTime(elapsed_time);
-		if (bSuccess) output_handler->process(input_ref, result, elapsed_time, isTest);
+	void callback(const int &result) {
+		output_handler->process(input_ref, result, performance_monitor.getRunningTime(), is_test);
 	}
 
 	char displayOperator() {
@@ -62,15 +49,12 @@ class Plus : public Calc {
 private:
 	static int plusFunc(const int& a, const int& b) { return a + b; };
 protected:
-	void init() {
-		calc_func = plusFunc;
+	int calculate(const int& a, const int& b) {
+		return a + b;
 	}
 
 public:
-	Plus(calcData* data, Output* out) : Calc(data, out) {
-		init();
-	}
-
+	Plus(calcData* data, Output* out, bool is_test_ = false) : Calc(data, out, is_test_) {}
 	char displayOperator() {
 		return '+';
 	}
@@ -80,14 +64,12 @@ class Minus : public Calc {
 private:
 	static int minusFunc(const int& a, const int& b) { return a - b; };
 protected:
-	void init(){
-		calc_func = minusFunc;
+	int calculate(const int& a, const int& b) {
+		return a - b;
 	}
 
 public:
-	Minus(calcData* data, Output* out) : Calc(data, out) {
-		init();
-	}
+	Minus(calcData* data, Output* out, bool is_test_ = false) : Calc(data, out, is_test_) {}
 	char displayOperator() {
 		return '-';
 	}
@@ -97,14 +79,12 @@ class Multiply : public Calc {
 private:
 	static int multiplyFunc(const int& a, const int& b) { return a * b; };
 protected:
-	void init() {
-		calc_func = multiplyFunc;
+	int calculate(const int& a, const int& b) {
+		return a * b;
 	}
 
 public:
-	Multiply(calcData* data, Output* out) : Calc(data, out) {
-		init();
-	}
+	Multiply(calcData* data, Output* out, bool is_test_ = false) : Calc(data, out, is_test_) {}
 	char displayOperator() {
 		return '*';
 	}
@@ -114,14 +94,12 @@ class Divide : public Calc {
 private:
 	static int divideFunc(const int& a, const int& b) { return a / b; };
 protected:
-	void init() {
-		calc_func = divideFunc;
+	int calculate(const int& a, const int& b) {
+		return a / b;
 	}
 
 public:
-	Divide(calcData* data, Output* out) : Calc(data, out) {
-		init();
-	}
+	Divide(calcData* data, Output* out, bool is_test_ = false) : Calc(data, out, is_test_) {}
 	char displayOperator() {
 		return '/';
 	}
@@ -146,25 +124,23 @@ static char operatorToChar(OPERATOR op) {
 	return ch;
 }
 
-static Calc* calcFactory(calcData* data, Output* out) {
+static Calc* calcFactory(calcData* data, Output* out, bool is_test = false) {
 
 	Calc* created_calc = nullptr;
 
 	switch (data->op) {
 	case OPERATOR::PLUS:
-		created_calc = new Plus(data, out);
+		created_calc = new Plus(data, out, is_test);
 		break;
 	case OPERATOR::MINUS:
-		created_calc = new Minus(data, out);
+		created_calc = new Minus(data, out, is_test);
 		break;
 	case OPERATOR::MULTIPLY:
-		created_calc = new Multiply(data, out);
+		created_calc = new Multiply(data, out, is_test);
 		break;
 	case OPERATOR::DIVIDE:
-		created_calc = new Divide(data, out);
+		created_calc = new Divide(data, out, is_test);
 		break;
 	}
-	created_calc->setArgs(data->first, data->second);
-
 	return created_calc;
 }

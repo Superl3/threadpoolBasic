@@ -36,8 +36,8 @@ std::string ThreadPoolManager::getTPMinfo() {
 bool ThreadPoolManager::AddTask(Calc* c) {
 	
 	auto workAndResult = [c, this] {
-		c->execute();
-		resultPool->insertTask([c] {c->callback(); });
+		auto result = c->execute();
+		resultPool->insertTask([&result, c] {c->callback(result); });
 	};
 
 	return taskPool->insertTask(workAndResult);

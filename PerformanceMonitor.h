@@ -19,12 +19,13 @@ public:
 			end_time_checked = true;
 		}
 	}
-	bool getRunningTime(int& elapsed_time) {
-		if (!start_time_checked || !end_time_checked)
-			return false;
+	int getRunningTime() {
+		int duration = -1;
 
-		elapsed_time = std::chrono::duration_cast<timeStandard>(end_time - start_time).count();
-		return true;
+		if (start_time_checked && end_time_checked)
+			duration = std::chrono::duration_cast<timeStandard>(end_time - start_time).count();
+
+		return duration;
 	}
 private:
 
