@@ -33,11 +33,12 @@ std::string ThreadPoolManager::getTPMinfo() {
 	return result;
 }
 
+#include<iostream>
 bool ThreadPoolManager::AddTask(Calc* c) {
 	
 	auto workAndResult = [c, this] {
 		auto result = c->execute();
-		resultPool->insertTask([&result, c] {c->callback(result); });
+		resultPool->insertTask([result, c] {c->callback(result); });
 	};
 
 	return taskPool->insertTask(workAndResult);

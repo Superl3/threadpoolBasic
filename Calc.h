@@ -28,6 +28,7 @@ protected:
 
 public:
 	Calc(calcData* data, Output* out, bool isTest_ = false) : input_ref(data), output_handler(out), is_test(isTest_) {
+		performance_monitor.setStartTimer();
 	}
 
 	int execute() {
