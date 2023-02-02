@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ThreadPool.h"
+#include "WorkThreadPool.h"
 #include "Calc.h"
 
 class ThreadPoolManager {
@@ -18,6 +19,6 @@ public:
 	int getWorkThreadCount() { return taskPool->getThreadCount(); }
 
 private:
-	ThreadPool *taskPool = nullptr;
+	WorkThreadPool *taskPool = nullptr;
 	ThreadPool *resultPool = nullptr;
 };

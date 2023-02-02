@@ -147,6 +147,7 @@
     <ClCompile Include="TestCreator.cpp" />
     <ClCompile Include="ThreadPool.cpp" />
     <ClCompile Include="ThreadPoolManager.cpp" />
+    <ClCompile Include="WorkThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Calc.h" />
@@ -158,6 +159,7 @@
     <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="ThreadPoolManager.h" />
     <ClInclude Include="Utility.h" />
+    <ClInclude Include="WorkThreadPool.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
