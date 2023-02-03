@@ -56,12 +56,13 @@ void WorkThreadPool::ThreadManaging() {
 	auto takeAvailableThread = [this]() {
 		WorkThread* thread = NULL;
 		while (true) {
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
 			std::lock_guard<std::mutex> lock_for_available_thread(available_thread_mutex);
 			if (stop_all && task_buffer.empty()) break;
-			if (available_threads.empty())
+			if (available_threads.empty()) {
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 				continue;
+			}
 
 			thread = std::move(available_threads.front());
 			available_threads.pop_front();
@@ -72,10 +73,10 @@ void WorkThreadPool::ThreadManaging() {
 	auto takeTask = [this]() {
 		std::function<void()> task = NULL;
 		while (true) {
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			std::lock_guard<std::mutex> lock_for_buffer(task_buffer_mutex);
 			if (task_buffer.empty()) {
 				if (stop_all) break;
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 				continue;
 			}
 			task = std::move(task_buffer.front());
