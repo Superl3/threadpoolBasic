@@ -18,6 +18,8 @@ class WorkThread {
 	std::thread thread;
 	const size_t id;
 
+	bool stop = false;
+
 	ThreadNotifier* notifier = NULL;
 
 	std::function<void()> task = NULL;
@@ -25,6 +27,8 @@ class WorkThread {
 
 public:
 	WorkThread(int index, ThreadNotifier *noti);
+	~WorkThread();
+
 	void assignTask(std::function<void()> task_);
 };
 

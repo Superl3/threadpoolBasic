@@ -14,22 +14,22 @@ WorkThreadPool::WorkThreadPool(const int& num_threads, int max_queue_size_)
 }
 WorkThreadPool::~WorkThreadPool() {
 	stop_all = true;
-
 	managing_thread.join();
 
-	/*for (auto& t : worker_threads) {
-		t.join();
-	}*/
-	worker_threads.clear();
+	for (auto& t : worker_threads) {
+		delete t;
+	}
 }
 
 void WorkThreadPool::ThreadManaging() {
-	while (true) {
-		WorkThread* thread = nullptr; // 이렇게 짜면 문제점 : 종료시 작업이 남아있는지 확인이 불가능하다 : 특수처리 해주어야함 TODO
+
+	auto takeAvailableThread = [this]() {
+		WorkThread* thread = NULL;
 		while (true) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
 			std::lock_guard<std::mutex> lock_for_available_thread(available_thread_mutex);
+			if (stop_all && task_buffer.empty()) break;
 			if (available_threads.empty())
 				continue;
 
@@ -37,8 +37,10 @@ void WorkThreadPool::ThreadManaging() {
 			available_threads.pop_front();
 			break;
 		}
-
-		std::function<void()> task;
+		return thread;
+	};
+	auto takeTask = [this]() {
+		std::function<void()> task = NULL;
 		while (true) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			std::lock_guard<std::mutex> lock_for_buffer(task_buffer_mutex);
@@ -51,8 +53,17 @@ void WorkThreadPool::ThreadManaging() {
 			// pooling task queue
 			break;
 		}
+		return task;
+	};
+
+	while (true) {
+
+		auto thread = takeAvailableThread();
+		auto task = takeTask();
+
+		if (stop_all && task == NULL) break;
+
 		thread->assignTask(task);
-		if (stop_all) break;
 	}
 }
 
@@ -61,17 +72,20 @@ WorkThread::WorkThread(int index, ThreadNotifier* noti) : id(index), notifier(no
 	thread = std::thread(&WorkThread::work, this);
 }
 
+WorkThread::~WorkThread() {
+	stop = true;
+	thread.join();
+}
+
 void WorkThread::work() {
-	while (true) {
-		//worker_thread_status[thread_id] = true;
+	while (!stop || !task) {
 		{
 			std::unique_lock<std::mutex> lock(thread_mutex);
 			thread_cv.wait(lock, [this] { return task; });
-			task();
+			if(task != NULL) task();
 			task = NULL;
 			notifier->InsertAvailableThread(id);
 		}
-		//worker_thread_status[thread_id] = true;
 	}
 }
 void WorkThread::assignTask(std::function<void()> task_) {
