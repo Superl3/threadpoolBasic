@@ -73,14 +73,21 @@ void WorkThreadPool::ThreadManaging() {
 	auto takeTask = [this]() {
 		std::function<void()> task = NULL;
 		while (true) {
-			std::lock_guard<std::mutex> lock_for_buffer(task_buffer_mutex);
+			//std::lock_guard<std::mutex> lock_for_buffer(task_buffer_mutex);
+			task_buffer_mutex.lock();
 			if (task_buffer.empty()) {
-				if (stop_all) break;
+				if (stop_all)
+				{
+					task_buffer_mutex.unlock();
+					break;
+				}
+				task_buffer_mutex.unlock();
 				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 				continue;
 			}
 			task = std::move(task_buffer.front());
 			task_buffer.pop_front();
+			task_buffer_mutex.unlock();
 			// pooling task queue
 			break;
 		}
@@ -123,9 +130,11 @@ bool WorkThreadPool::insertTask(std::function<void()> f) {
 		if (task_buffer.size() < max_queue_size || max_queue_size == -1) {
 			{
 				std::cout << "4";
-				std::lock_guard<std::mutex> lock(task_buffer_mutex);
+				//std::lock_guard<std::mutex> lock(task_buffer_mutex);
+				task_buffer_mutex.lock();
 				std::cout << "5";
 				task_buffer.emplace_back(f);
+				task_buffer_mutex.unlock();
 			}
 			isInserted = true;
 		}
