@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
 		std::cin >> log_file_name;
 	}
 
-	int test_case_count = 1000000;
+	int test_case_count = 100;
 	if (argc >= 5) test_case_count = atoi(argv[4]);
 	//else {
 	//	std::cout << "test_case_count  : ";
@@ -37,8 +37,6 @@ int main(int argc, char* argv[]) {
 	//}
 
 	int output_thread_count = 1;
-	if (log_file_name == "none")
-		output_thread_count = -1;
 
 	ThreadPoolManager* tpm = new ThreadPoolManager(thread_count, output_thread_count, max_queue_size);
 	Output *output = new Output(log_file_name);
@@ -47,7 +45,7 @@ int main(int argc, char* argv[]) {
 	input->execute();
 	while (!input->isDone())
 	{
-		timeTaskSleep;
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 	delete tpm;
 	delete output;

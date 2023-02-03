@@ -27,9 +27,6 @@ Input::~Input() {
 
 	delete test_creator;
 	test_creator = nullptr;
-
-	//delete test_time_checker;
-	//test_time_checker = nullptr;
 }
 
 #include <conio.h>
@@ -51,12 +48,9 @@ void Input::inputLoop() {
 				break;
 			}
 			case INPUTTYPE::TEST: {
-				//if (!stop_test) {
 				stop_test = false;
-
 				std::thread testThread(&Input::doTest, this);
 				testThread.detach();
-				//}
 				break;
 			}
 			case INPUTTYPE::STOPTEST: {
@@ -113,7 +107,7 @@ void Input::doTest() {
 			if (stop_test) break;
 		}
 	}
-	tpm->StopForTestEnd();
+	tpm->StopForTestEnd(testData.size());
 
 	if (!stop_test) {
 		test_time_checker->setEndTimer();

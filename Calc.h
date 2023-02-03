@@ -41,6 +41,8 @@ public:
 		output_handler->process(input_ref, result, performance_monitor.getRunningTime(), is_test);
 	}
 
+	bool isTest() { return is_test; }
+
 	char displayOperator() {
 		return '=';
 	}

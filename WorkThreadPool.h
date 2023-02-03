@@ -29,6 +29,7 @@ public:
 	WorkThread(int index, ThreadNotifier *noti);
 	~WorkThread();
 
+	size_t getID() { return id; }
 	void assignTask(std::function<void()> task_);
 };
 

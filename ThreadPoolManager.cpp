@@ -38,14 +38,21 @@ bool ThreadPoolManager::AddTask(Calc* c) {
 	
 	auto workAndResult = [c, this] {
 		auto result = c->execute();
+		if (c->isTest()) {
+			std::lock_guard<std::mutex> lock(test_cnt_mutex);
+			test_cnt += 1;
+		}
 		resultPool->insertTask([result, c] {c->callback(result); });
 	};
 
 	return taskPool->insertTask(workAndResult);
 }
 
-void ThreadPoolManager::StopForTestEnd() {
-	//taskPool->restartWorkers();
+void ThreadPoolManager::StopForTestEnd(const size_t& test_count) {
+	while (test_count > test_cnt) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	}
+	test_cnt = 0;
 }
 
 void ThreadPoolManager::ForceQuitTest() {

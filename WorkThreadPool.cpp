@@ -21,12 +21,42 @@ WorkThreadPool::~WorkThreadPool() {
 	}
 }
 
+WorkThread::WorkThread(int index, ThreadNotifier* noti) : id(index), notifier(noti) {
+	thread = std::thread(&WorkThread::work, this);
+}
+
+WorkThread::~WorkThread() {
+	stop = true;
+	thread_cv.notify_all();
+	thread.join();
+}
+void WorkThread::work() {
+	while (!stop || !task) {
+		{
+			std::unique_lock<std::mutex> lock(thread_mutex);
+			thread_cv.wait(lock, [this] { return task; });
+			if (task != NULL) {
+				task();
+			}
+			task = NULL;
+			notifier->InsertAvailableThread(id);
+		}
+	}
+}
+void WorkThread::assignTask(std::function<void()> task_) {
+	task = task_;
+	thread_cv.notify_all();
+}
+
+#include "PerformanceMonitor.h"
+#include<iostream>
+
 void WorkThreadPool::ThreadManaging() {
 
 	auto takeAvailableThread = [this]() {
 		WorkThread* thread = NULL;
 		while (true) {
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
 			std::lock_guard<std::mutex> lock_for_available_thread(available_thread_mutex);
 			if (stop_all && task_buffer.empty()) break;
@@ -42,7 +72,7 @@ void WorkThreadPool::ThreadManaging() {
 	auto takeTask = [this]() {
 		std::function<void()> task = NULL;
 		while (true) {
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			std::lock_guard<std::mutex> lock_for_buffer(task_buffer_mutex);
 			if (task_buffer.empty()) {
 				if (stop_all) break;
@@ -56,42 +86,23 @@ void WorkThreadPool::ThreadManaging() {
 		return task;
 	};
 
+	
 	while (true) {
-
+		PerformanceMonitor perf1, perf2;
+		perf1.setStartTimer();
 		auto thread = takeAvailableThread();
+		perf1.setEndTimer();
+		perf2.setStartTimer();
 		auto task = takeTask();
-
+		perf2.setEndTimer();
 		if (stop_all && task == NULL) break;
+
+		std::cout << perf1.getRunningTime() << ", " << perf2.getRunningTime() << '\n';
 
 		thread->assignTask(task);
 	}
 }
 
-
-WorkThread::WorkThread(int index, ThreadNotifier* noti) : id(index), notifier(noti) {
-	thread = std::thread(&WorkThread::work, this);
-}
-
-WorkThread::~WorkThread() {
-	stop = true;
-	thread.join();
-}
-
-void WorkThread::work() {
-	while (!stop || !task) {
-		{
-			std::unique_lock<std::mutex> lock(thread_mutex);
-			thread_cv.wait(lock, [this] { return task; });
-			if(task != NULL) task();
-			task = NULL;
-			notifier->InsertAvailableThread(id);
-		}
-	}
-}
-void WorkThread::assignTask(std::function<void()> task_) {
-	task = task_;
-	thread_cv.notify_all();
-}
 int WorkThreadPool::getQueuedTaskCount() {
 	return task_buffer.size();
 }

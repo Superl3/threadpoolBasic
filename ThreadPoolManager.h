@@ -10,7 +10,7 @@ public:
 	~ThreadPoolManager();
 
 	bool AddTask(Calc* c);
-	void StopForTestEnd();
+	void StopForTestEnd(const size_t &test_count);
 	void ForceQuitTest();
 	bool isDisabled() { return getWorkThreadCount() == -1; }
 
@@ -21,4 +21,7 @@ public:
 private:
 	WorkThreadPool *taskPool = nullptr;
 	ThreadPool *resultPool = nullptr;
+
+	std::mutex test_cnt_mutex;
+	size_t test_cnt = 0;
 };
