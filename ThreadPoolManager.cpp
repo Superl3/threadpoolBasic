@@ -44,7 +44,7 @@ bool ThreadPoolManager::AddTask(Calc* c) {
 		}
 		resultPool->insertTask([result, c] {c->callback(result); });
 	};
-
+	std::cout << "3";
 	return taskPool->insertTask(workAndResult);
 }
 

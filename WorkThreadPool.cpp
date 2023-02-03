@@ -122,7 +122,9 @@ bool WorkThreadPool::insertTask(std::function<void()> f) {
 	else {
 		if (task_buffer.size() < max_queue_size || max_queue_size == -1) {
 			{
+				std::cout << "4";
 				std::lock_guard<std::mutex> lock(task_buffer_mutex);
+				std::cout << "5";
 				task_buffer.emplace_back(f);
 			}
 			isInserted = true;

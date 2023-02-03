@@ -14,6 +14,7 @@ void Input::execute() {
 bool Input::insertTask(calcData* data, bool isTest) {
 	bool isInserted = true;
 	auto task = calcFactory(data, output, isTest);
+	std::cout << "2";
 	isInserted = tpm->AddTask(task);
 
 	if (!isTest) input_database.push_back(data);
@@ -93,6 +94,7 @@ void Input::doTest() {
 
 	if (!tpm->isDisabled()) {
 		for (auto data : testData) {
+			std::cout << "1";
 			if (!insertTask(data, true)) {
 				std::cout << "ERROR Occurred while testing.\n";
 				stop_test = true;

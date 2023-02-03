@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
 		std::cin >> log_file_name;
 	}
 
-	int test_case_count = 100;
+	int test_case_count = 10000;
 	if (argc >= 5) test_case_count = atoi(argv[4]);
 	//else {
 	//	std::cout << "test_case_count  : ";
