@@ -21,7 +21,7 @@ std::string ThreadPoolManager::getTPMinfo() {
 	result += "***************************************\n";
 	result += "Work Pool (thread size : " + std::to_string(taskPool->getThreadCount()) + ", queue size : " + std::to_string(taskPool->getQueueSize()) + ")\n";
 	result += "---------------------------------------\n";
-	result += "currently working thread count : " + std::to_string(taskPool->getCurrentWorkingThread()) + '\n';
+	//result += "currently working thread count : " + std::to_string(taskPool->getCurrentWorkingThread()) + '\n';
 	result += "queued task count : " + std::to_string(taskPool->getQueuedTaskCount()) + '\n';
 	result += "=======================================\n";
 	result += "Result Pool (thread size : " + std::to_string(resultPool->getThreadCount()) + ", queue size : " + std::to_string(resultPool->getQueueSize()) + ")\n";
@@ -45,9 +45,9 @@ bool ThreadPoolManager::AddTask(Calc* c) {
 }
 
 void ThreadPoolManager::StopForTestEnd() {
-	taskPool->restartWorkers();
+	//taskPool->restartWorkers();
 }
 
 void ThreadPoolManager::ForceQuitTest() {
-	taskPool->forceRestartWorkers();
+	//taskPool->forceRestartWorkers();
 }
