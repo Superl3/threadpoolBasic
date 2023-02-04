@@ -42,7 +42,7 @@ bool ThreadPoolManager::AddTask(Calc* c) {
 			std::lock_guard<std::mutex> lock(test_cnt_mutex);
 			test_cnt += 1;
 		}
-		resultPool->insertTask([result, c] {c->callback(result); });
+		resultPool->insertTask([result, c] {c->callback(result); }); //brandon-TBD
 	};
 	std::cout << "3";
 	return taskPool->insertTask(workAndResult);
