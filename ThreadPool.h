@@ -32,10 +32,10 @@ private:
 	// Worker 쓰레드를 보관하는 벡터.
 	std::deque<std::thread> worker_threads;
 	// 할일들을 보관하는 job 큐.
-	std::deque<std::function<void()>> task_buffer;
+	std::deque<std::function<void()>> threadpool_task_buffer;
 	// 위의 job 큐를 위한 cv 와 m.
 	std::condition_variable task_buffer_cv;
-	std::mutex task_buffer_mutex;
+	std::mutex threadpool_task_buffer_mutex;
 
 	std::mutex status_mutex;
 

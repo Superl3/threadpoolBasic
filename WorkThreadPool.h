@@ -6,6 +6,19 @@
 #include <functional>
 #include<vector>
 
+#ifdef BRANDON_DEBUG
+static int g_test_debug_count = 10000;
+
+static std::mutex g_task_buffer_count_mutex;
+static int g_task_buffer_count = 0;
+
+static std::mutex g_taskm_buffer_count_mutex;
+static int g_taskm_buffer_count = 0;
+
+static std::mutex g_worker_notify_count_mutex;
+static int g_worker_notify_count = 0;
+#endif
+
 class ThreadNotifier {
 public:
 	virtual void InsertAvailableThread(const size_t& index) = 0;

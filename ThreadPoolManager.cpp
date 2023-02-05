@@ -44,12 +44,16 @@ bool ThreadPoolManager::AddTask(Calc* c) {
 		}
 		resultPool->insertTask([result, c] {c->callback(result); }); //brandon-TBD
 	};
-	std::cout << "3";
+	//std::cout << "3";
 	return taskPool->insertTask(workAndResult);
 }
 
 void ThreadPoolManager::StopForTestEnd(const size_t& test_count) {
 	while (test_count > test_cnt) {
+		{
+			//std::lock_guard<std::mutex> lock(test_cnt_mutex);
+			//std::cout << " count : " << test_cnt << "\n";
+		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
 	test_cnt = 0;

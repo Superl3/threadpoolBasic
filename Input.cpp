@@ -14,9 +14,9 @@ void Input::execute() {
 bool Input::insertTask(calcData* data, bool isTest) {
 	bool isInserted = true;
 	auto task = calcFactory(data, output, isTest);
-	std::cout << "2";
+	//std::cout << "2";
 	isInserted = tpm->AddTask(task);
-
+	//std::cout << "!0";
 	if (!isTest) input_database.push_back(data);
 
 	return isInserted;
@@ -90,17 +90,21 @@ void Input::inputLoop() {
 void Input::doTest() {
 	test_time_checker = new GlobalPerformanceMonitor();
 	auto testData = test_creator->getCreatedTest();
+	//std::cout << "!4";
 	test_time_checker->testStart();
-
+	//std::cout << "!3";
 	if (!tpm->isDisabled()) {
+		std::cout << "start do test.\n";
 		for (auto data : testData) {
-			std::cout << "1";
+			//std::cout << "1";
+
 			if (!insertTask(data, true)) {
 				std::cout << "ERROR Occurred while testing.\n";
 				stop_test = true;
 			}
 			if (stop_test) break;
 		}
+		std::cout << "start insert task done.\n";
 	}
 	else {
 		for (auto data : testData) {
@@ -109,13 +113,15 @@ void Input::doTest() {
 			if (stop_test) break;
 		}
 	}
+	//std::cout << "!1";
 	tpm->StopForTestEnd(testData.size());
-
+	//std::cout << "!2";
 	if (!stop_test) {
 		test_time_checker->setEndTimer();
 		std::cout << "THREAD COUNT : " << tpm->getWorkThreadCount() << " TESTCASE COUNT : " << testData.size() << "\n" <<
 			"TOTAL RUNNING TIME : " << test_time_checker->getRunningTime() << "ms\n";
 	}
+	//std::cout << "!3";
 	delete test_time_checker; 
 	stop_test = true;
 }

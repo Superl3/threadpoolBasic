@@ -21,9 +21,9 @@ void ThreadPool::stopWorkers() {
 
 void ThreadPool::forceRestartWorkers() {
 	//std::lock_guard<std::mutex> lock(task_buffer_mutex);
-	task_buffer_mutex.lock();
-	task_buffer.clear();
-	task_buffer_mutex.unlock();
+	threadpool_task_buffer_mutex.lock();
+	threadpool_task_buffer.clear();
+	threadpool_task_buffer_mutex.unlock();
 }
 #include<iostream>
 void ThreadPool::restartWorkers() {
@@ -48,21 +48,35 @@ void ThreadPool::work() {
 		std::function<void()> task;
 		{
 			//std::unique_lock<std::mutex> lock(task_buffer_mutex);
-			task_buffer_mutex.lock();
+			threadpool_task_buffer_mutex.lock();
+			//std::cout << "<9>";
 			//task_buffer_cv.wait(lock, [this] { return !this->task_buffer.empty() || stop_all; });
-			if (stop_all && this->task_buffer.empty()) break;
-			if (this->task_buffer.empty())
+			if (stop_all && this->threadpool_task_buffer.empty())
 			{
-				task_buffer_mutex.unlock();
+				threadpool_task_buffer_mutex.unlock();
+				//std::cout << "9-1";
+				break;
+			}
+			if (this->threadpool_task_buffer.empty())
+			{
+				threadpool_task_buffer_mutex.unlock();
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+				//std::cout << "9-2";
 				continue;
 			}
-			task = std::move(task_buffer.front());
-			task_buffer.pop_front();
-			task_buffer_mutex.unlock();
+			//std::cout << "<9-3>";
+			task = std::move(threadpool_task_buffer.front());
+			threadpool_task_buffer.pop_front();
+			threadpool_task_buffer_mutex.unlock();
+			//std::cout << "<9-3-1>";
 		}
 
 		worker_thread_status[thread_id] = true;
+		//std::cout << "<1>";
 		task();
+		//std::cout << "<2>";
+		//std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		//std::cout << "1-1";
 	}
 }
 
@@ -79,7 +93,7 @@ int ThreadPool::getCurrentWorkingThread() {
 	return cnt;
 }
 int ThreadPool::getQueuedTaskCount() {
-	return task_buffer.size();
+	return threadpool_task_buffer.size();
 }
 
 bool ThreadPool::insertTask(std::function<void()> f) {
@@ -90,12 +104,14 @@ bool ThreadPool::insertTask(std::function<void()> f) {
 		;
 	}
 	else {
-		if (task_buffer.size() < max_queue_size || max_queue_size == -1) {
+		if (threadpool_task_buffer.size() < max_queue_size || max_queue_size == -1) {
 			{
 				//std::lock_guard<std::mutex> lock(task_buffer_mutex);
-				task_buffer_mutex.lock();
-				task_buffer.emplace_back(f);
-				task_buffer_mutex.unlock();
+//				std::cout << "<its>";
+				threadpool_task_buffer_mutex.lock();
+				threadpool_task_buffer.emplace_back(f);
+				threadpool_task_buffer_mutex.unlock();
+//				std::cout << "<ite>";
 			}
 			//task_buffer_cv.notify_one();
 			isInserted = true;
