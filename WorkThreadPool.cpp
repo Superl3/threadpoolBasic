@@ -1,4 +1,5 @@
 #include "WorkThreadPool.h"
+#include "Utility.h"
 #include<iostream>
 
 WorkThreadPool::WorkThreadPool(const int& num_threads, int max_queue_size_)
@@ -7,7 +8,6 @@ WorkThreadPool::WorkThreadPool(const int& num_threads, int max_queue_size_)
 		for (size_t i = 0; i < worker_thread_count; ++i) {
 			auto thread = new WorkThread(i, this);
 			worker_threads.emplace_back(thread);
-			available_threads.push_back(i);
 		}
 	}
 
@@ -34,46 +34,38 @@ WorkThread::~WorkThread() {
 void WorkThread::work() {
 	while (!stop || !task) {
 		{
-			std::unique_lock<std::mutex> lock(thread_mutex);
-			thread_cv.wait(lock, [this] { return task; });
-
-			g_wait_task_mutex.lock();
-			g_wait_task_count += 1;
-			if (g_wait_task_count == 100000) {
-				std::cout << "wait task done\n";
-				g_wait_task_count = 0;
-			}
-			g_wait_task_mutex.unlock();
-
+			std::unique_lock<std::mutex> lk(thread_mutex);
+			notifier->InsertAvailableThread(id);
+			thread_cv.wait(lk, [this] { return task; });
+			
+			/*while (true) {
+				std::unique_lock<std::mutex> lk(thread_mutex);
+				if (task) break;
+				lk.unlock();
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			}*/
 			task();
 			task = NULL;
-			notifier->InsertAvailableThread(id);
 		}
 	}
 }
+#include<string>
 void WorkThread::assignTask(std::function<void()> task_) {
+	std::lock_guard<std::mutex> lk(thread_mutex);
 	task = task_;
 	thread_cv.notify_one();
-	g_insert_task_mutex.lock();
-	g_insert_task_count += 1;
-	if (g_insert_task_count == 100000) {
-		std::cout << "insert task done\n";
-		g_insert_task_count = 0;
-	}
-	g_insert_task_mutex.unlock();
 }
 
 #include "PerformanceMonitor.h"
 
 void WorkThreadPool::ThreadManaging() {
-
 	auto takeAvailableThread = [this]() {
 		WorkThread* thread = NULL;
 		while (true) {
-			std::unique_lock<std::mutex> lock_for_available_thread(available_thread_mutex);
+			std::unique_lock<std::mutex> lock_for_available_buffer(available_thread_mutex);
 			if (available_threads.empty()) {
-				lock_for_available_thread.unlock();
-				std::this_thread::sleep_for(std::chrono::milliseconds(10));
+				lock_for_available_buffer.unlock();
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 				continue;
 			}
 			thread = worker_threads[available_threads.front()];
@@ -86,41 +78,44 @@ void WorkThreadPool::ThreadManaging() {
 		std::function<void()> task = NULL;
 		while (true) {
 			std::unique_lock<std::mutex> lock_for_buffer(task_buffer_mutex);
-			//task_buffer_cv.wait(lock_for_buffer, [this] { return !task_buffer.empty() || stop_all; });
+			task_buffer_cv.wait(lock_for_buffer, [this] { return !task_buffer.empty() || stop_all; });
 			if (task_buffer.empty()) {
 				if (stop_all) break;
-				lock_for_buffer.unlock();
-				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 				continue;
 			}
 			task = std::move(task_buffer.front());
 			task_buffer.pop_front();
-			// pooling task queue
 			break;
 		}
 		return task;
 	};
 
-	
+
 	while (true) {
-		//PerformanceMonitor perf1, perf2;
-		//perf1.setStartTimer();
 		auto thread = takeAvailableThread();
-		//perf1.setEndTimer();	
-		//perf2.setStartTimer();
 		auto task = takeTask();
-		//perf2.setEndTimer();
 		if (stop_all && task == NULL) break;
-		//std::cout << perf1.getRunningTime() << ", " << perf2.getRunningTime() << '\n';
 		thread->assignTask(task);
 	}
+}
+
+int WorkThreadPool::getAvailableCount() {
+	int ret = 0;
+	available_thread_mutex.lock();
+	ret = available_threads.size();
+	available_thread_mutex.unlock();
+	return ret;
 }
 
 int WorkThreadPool::getQueuedTaskCount() {
 	return task_buffer.size();
 }
 
-void WorkThreadPool::InsertAvailableThread(const size_t &index) {
+void WorkThreadPool::InsertAvailableThread(const size_t& index) {
+
+	//std::string str = std::to_string(index) + "is now available \n";
+	//std::cout << str;
+
 	std::lock_guard<std::mutex> lock(available_thread_mutex);
 	available_threads.push_back(index);
 }
@@ -138,7 +133,7 @@ bool WorkThreadPool::insertTask(std::function<void()> f) {
 				task_buffer.emplace_back(f);
 			}
 			isInserted = true;
-			task_buffer_cv.notify_all();
+			task_buffer_cv.notify_one();
 		}
 	}
 	return isInserted;

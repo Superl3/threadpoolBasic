@@ -8,7 +8,7 @@
 
 int main(int argc, char* argv[]) {
 
-	int thread_count = 8;
+	int thread_count = THREAD_COUNT;
 	if (argc >= 2) thread_count = atoi(argv[1]);
 	//else {
 	//	std::cout << "worker thread count (-1 = disable thread pool) : ";
@@ -24,12 +24,12 @@ int main(int argc, char* argv[]) {
 
 	std::string log_file_name = "none";
 	if (argc >= 4) log_file_name.assign(argv[3], strlen(argv[3]));
-	else {
-		std::cout << "log file name (none = skip) : ";
-		std::cin >> log_file_name;
-	}
+	//else {
+	//	std::cout << "log file name (none = skip) : ";
+	//	std::cin >> log_file_name;
+	//}
 
-	int test_case_count = 100000;
+	int test_case_count = TEST_COUNT;
 	if (argc >= 5) test_case_count = atoi(argv[4]);
 	//else {
 	//	std::cout << "test_case_count  : ";

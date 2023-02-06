@@ -6,9 +6,6 @@
 #include <functional>
 #include<vector>
 
-static int g_insert_task_count = 0;
-static std::mutex g_insert_task_mutex;
-
 static int g_wait_task_count = 0;
 static std::mutex g_wait_task_mutex;
 
@@ -53,6 +50,8 @@ public:
 	int getQueueSize() { return max_queue_size; }
 
 	int getQueuedTaskCount();
+
+	int getAvailableCount();
 
 private:
 	void ThreadManaging();
