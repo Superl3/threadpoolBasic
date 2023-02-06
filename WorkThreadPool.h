@@ -6,6 +6,12 @@
 #include <functional>
 #include<vector>
 
+static int g_insert_task_count = 0;
+static std::mutex g_insert_task_mutex;
+
+static int g_wait_task_count = 0;
+static std::mutex g_wait_task_mutex;
+
 class ThreadNotifier {
 public:
 	virtual void InsertAvailableThread(const size_t& index) = 0;

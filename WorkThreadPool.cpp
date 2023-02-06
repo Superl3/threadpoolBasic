@@ -1,4 +1,5 @@
 #include "WorkThreadPool.h"
+#include<iostream>
 
 WorkThreadPool::WorkThreadPool(const int& num_threads, int max_queue_size_)
 	: worker_thread_count(num_threads), max_queue_size(max_queue_size_), stop_all(false) {
@@ -35,6 +36,15 @@ void WorkThread::work() {
 		{
 			std::unique_lock<std::mutex> lock(thread_mutex);
 			thread_cv.wait(lock, [this] { return task; });
+
+			g_wait_task_mutex.lock();
+			g_wait_task_count += 1;
+			if (g_wait_task_count == 100000) {
+				std::cout << "wait task done\n";
+				g_wait_task_count = 0;
+			}
+			g_wait_task_mutex.unlock();
+
 			task();
 			task = NULL;
 			notifier->InsertAvailableThread(id);
@@ -44,10 +54,16 @@ void WorkThread::work() {
 void WorkThread::assignTask(std::function<void()> task_) {
 	task = task_;
 	thread_cv.notify_one();
+	g_insert_task_mutex.lock();
+	g_insert_task_count += 1;
+	if (g_insert_task_count == 100000) {
+		std::cout << "insert task done\n";
+		g_insert_task_count = 0;
+	}
+	g_insert_task_mutex.unlock();
 }
 
 #include "PerformanceMonitor.h"
-#include<iostream>
 
 void WorkThreadPool::ThreadManaging() {
 
@@ -75,6 +91,7 @@ void WorkThreadPool::ThreadManaging() {
 				if (stop_all) break;
 				lock_for_buffer.unlock();
 				std::this_thread::sleep_for(std::chrono::milliseconds(10));
+				continue;
 			}
 			task = std::move(task_buffer.front());
 			task_buffer.pop_front();
@@ -95,7 +112,6 @@ void WorkThreadPool::ThreadManaging() {
 		//perf2.setEndTimer();
 		if (stop_all && task == NULL) break;
 		//std::cout << perf1.getRunningTime() << ", " << perf2.getRunningTime() << '\n';
-
 		thread->assignTask(task);
 	}
 }
