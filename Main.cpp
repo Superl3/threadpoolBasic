@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
 		std::cin >> log_file_name;
 	}
 
-	int test_case_count = 100;
+	int test_case_count = 1000;
 	if (argc >= 5) test_case_count = atoi(argv[4]);
 	//else {
 	//	std::cout << "test_case_count  : ";
@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
 	input->execute();
 	while (!input->isDone())
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 	delete tpm;
 	delete output;

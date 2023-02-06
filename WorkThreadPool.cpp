@@ -6,7 +6,7 @@ WorkThreadPool::WorkThreadPool(const int& num_threads, int max_queue_size_)
 		for (size_t i = 0; i < worker_thread_count; ++i) {
 			auto thread = new WorkThread(i, this);
 			worker_threads.emplace_back(thread);
-			available_threads.push_back(thread);
+			available_threads.push_back(i);
 		}
 	}
 
@@ -27,7 +27,7 @@ WorkThread::WorkThread(int index, ThreadNotifier* noti) : id(index), notifier(no
 
 WorkThread::~WorkThread() {
 	stop = true;
-	thread_cv.notify_all();
+	thread_cv.notify_one();
 	thread.join();
 }
 void WorkThread::work() {
@@ -35,9 +35,7 @@ void WorkThread::work() {
 		{
 			std::unique_lock<std::mutex> lock(thread_mutex);
 			thread_cv.wait(lock, [this] { return task; });
-			if (task != NULL) {
-				task();
-			}
+			task();
 			task = NULL;
 			notifier->InsertAvailableThread(id);
 		}
@@ -45,7 +43,7 @@ void WorkThread::work() {
 }
 void WorkThread::assignTask(std::function<void()> task_) {
 	task = task_;
-	thread_cv.notify_all();
+	thread_cv.notify_one();
 }
 
 #include "PerformanceMonitor.h"
@@ -56,15 +54,13 @@ void WorkThreadPool::ThreadManaging() {
 	auto takeAvailableThread = [this]() {
 		WorkThread* thread = NULL;
 		while (true) {
-
-			std::lock_guard<std::mutex> lock_for_available_thread(available_thread_mutex);
-			if (stop_all && task_buffer.empty()) break;
+			std::unique_lock<std::mutex> lock_for_available_thread(available_thread_mutex);
 			if (available_threads.empty()) {
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+				lock_for_available_thread.unlock();
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 				continue;
 			}
-
-			thread = std::move(available_threads.front());
+			thread = worker_threads[available_threads.front()];
 			available_threads.pop_front();
 			break;
 		}
@@ -73,11 +69,12 @@ void WorkThreadPool::ThreadManaging() {
 	auto takeTask = [this]() {
 		std::function<void()> task = NULL;
 		while (true) {
-			std::lock_guard<std::mutex> lock_for_buffer(task_buffer_mutex);
+			std::unique_lock<std::mutex> lock_for_buffer(task_buffer_mutex);
+			//task_buffer_cv.wait(lock_for_buffer, [this] { return !task_buffer.empty() || stop_all; });
 			if (task_buffer.empty()) {
 				if (stop_all) break;
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
-				continue;
+				lock_for_buffer.unlock();
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 			task = std::move(task_buffer.front());
 			task_buffer.pop_front();
@@ -89,16 +86,15 @@ void WorkThreadPool::ThreadManaging() {
 
 	
 	while (true) {
-		PerformanceMonitor perf1, perf2;
-		perf1.setStartTimer();
+		//PerformanceMonitor perf1, perf2;
+		//perf1.setStartTimer();
 		auto thread = takeAvailableThread();
-		perf1.setEndTimer();
-		perf2.setStartTimer();
+		//perf1.setEndTimer();	
+		//perf2.setStartTimer();
 		auto task = takeTask();
-		perf2.setEndTimer();
+		//perf2.setEndTimer();
 		if (stop_all && task == NULL) break;
-
-		std::cout << perf1.getRunningTime() << ", " << perf2.getRunningTime() << '\n';
+		//std::cout << perf1.getRunningTime() << ", " << perf2.getRunningTime() << '\n';
 
 		thread->assignTask(task);
 	}
@@ -110,7 +106,7 @@ int WorkThreadPool::getQueuedTaskCount() {
 
 void WorkThreadPool::InsertAvailableThread(const size_t &index) {
 	std::lock_guard<std::mutex> lock(available_thread_mutex);
-	available_threads.push_back(worker_threads[index]);
+	available_threads.push_back(index);
 }
 
 bool WorkThreadPool::insertTask(std::function<void()> f) {
@@ -126,6 +122,7 @@ bool WorkThreadPool::insertTask(std::function<void()> f) {
 				task_buffer.emplace_back(f);
 			}
 			isInserted = true;
+			task_buffer_cv.notify_all();
 		}
 	}
 	return isInserted;

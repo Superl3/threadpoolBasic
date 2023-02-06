@@ -60,7 +60,7 @@ private:
 	// Worker 쓰레드를 보관하는 벡터.
 	std::vector<WorkThread*> worker_threads;
 
-	std::deque<WorkThread*> available_threads;
+	std::deque<int> available_threads;
 	std::mutex available_thread_mutex;
 
 	// 할일들을 보관하는 job 큐.
