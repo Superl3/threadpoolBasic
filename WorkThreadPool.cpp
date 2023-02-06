@@ -28,24 +28,27 @@ WorkThread::WorkThread(int index, ThreadNotifier* noti) : id(index), notifier(no
 
 WorkThread::~WorkThread() {
 	stop = true;
+#ifndef THREAD_POOLING
 	thread_cv.notify_one();
+#endif
 	thread.join();
 }
 void WorkThread::work() {
 	while (!stop || !task) {
-#ifdef THREAD_POLLING
+#ifndef THREAD_POOLING
+		std::unique_lock<std::mutex> lk(thread_mutex);
+		notifier->InsertAvailableThread(id);
+		thread_cv.wait(lk, [this] { return task || stop; });
+#else
 		notifier->InsertAvailableThread(id);
 		while (true) {
 			std::unique_lock<std::mutex> lk(thread_mutex);
-			if (task) break;
+			if (task || stop) break;
 			lk.unlock();
 			std::this_thread::yield();
 		}
-#else
-		std::unique_lock<std::mutex> lk(thread_mutex);
-		notifier->InsertAvailableThread(id);
-		thread_cv.wait(lk, [this] { return task; });
 #endif
+		if (stop) break;
 		task();
 		task = NULL;
 	}
@@ -65,6 +68,7 @@ void WorkThreadPool::ThreadManaging() {
 	auto takeAvailableThread = [this]() {
 		WorkThread* thread = NULL;
 		while (true) {
+			if (stop_all) break;
 			std::unique_lock<std::mutex> lock_for_available_buffer(available_thread_mutex);
 			if (available_threads.empty()) {
 				lock_for_available_buffer.unlock();
@@ -80,6 +84,7 @@ void WorkThreadPool::ThreadManaging() {
 	auto takeTask = [this]() {
 		std::function<void()> task = NULL;
 		while (true) {
+			if (stop_all) break;
 			std::unique_lock<std::mutex> lock_for_buffer(task_buffer_mutex);
 			if (task_buffer.empty()) {
 				lock_for_buffer.unlock();
@@ -98,7 +103,7 @@ void WorkThreadPool::ThreadManaging() {
 	while (true) {
 		auto thread = takeAvailableThread();
 		auto task = takeTask();
-		if (stop_all && task == NULL) break;
+		if (stop_all) break;
 		thread->assignTask(task);
 	}
 }

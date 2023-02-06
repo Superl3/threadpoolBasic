@@ -6,6 +6,8 @@ ThreadPoolManager::ThreadPoolManager(const int& work_thread_count, const int&out
 }
 
 ThreadPoolManager::~ThreadPoolManager() {
+	stop_all = true;
+
 	delete taskPool;
 	taskPool = nullptr;
 
@@ -42,7 +44,7 @@ bool ThreadPoolManager::AddTask(Calc* c) {
 			std::lock_guard<std::mutex> lock(test_cnt_mutex);
 			test_cnt += 1;
 		}
-		//resultPool->insertTask([result, c] {c->callback(result); });
+		resultPool->insertTask([result, c] {c->callback(result); });
 	};
 
 	return taskPool->insertTask(workAndResult);
@@ -50,14 +52,12 @@ bool ThreadPoolManager::AddTask(Calc* c) {
 
 void ThreadPoolManager::StopForTestEnd(const size_t& test_count) {
 	while (test_count > test_cnt) {
+		if (stop_all || stop_test) break;
 		std::this_thread::yield();
 #ifdef DISPLAY_PROCESSED_TEST
-		std::cout << test_cnt << ", " << taskPool->getAvailableCount() << " is left.\n";
+		if(taskPool)
+			std::cout << test_cnt << ", " << taskPool->getAvailableCount() << " is left.\n";
 #endif
 	}
 	test_cnt = 0;
-}
-
-void ThreadPoolManager::ForceQuitTest() {
-	//taskPool->forceRestartWorkers();
 }

@@ -55,7 +55,7 @@ void Input::inputLoop() {
 			}
 			case INPUTTYPE::STOPTEST: {
 				stop_test = true;
-				tpm->ForceQuitTest();
+				tpm->stopTest();
 				break;
 			}
 			case INPUTTYPE::INFO: {
@@ -96,6 +96,7 @@ void Input::doTest() {
 			if (!insertTask(data, true)) {
 				std::cout << "ERROR Occurred while testing.\n";
 				stop_test = true;
+				tpm->stopTest();
 			}
 			if (stop_test) break;
 		}
@@ -109,7 +110,7 @@ void Input::doTest() {
 	}
 	tpm->StopForTestEnd(testData.size());
 
-	if (!stop_test) {
+	if (!stop_test && !stop_input) {
 		test_time_checker->setEndTimer();
 		std::cout << "THREAD COUNT : " << tpm->getWorkThreadCount() << " TESTCASE COUNT : " << testData.size() << "\n" <<
 			"TOTAL RUNNING TIME : " << test_time_checker->getRunningTime() << "ms\n";

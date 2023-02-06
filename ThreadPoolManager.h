@@ -11,14 +11,18 @@ public:
 
 	bool AddTask(Calc* c);
 	void StopForTestEnd(const size_t &test_count);
-	void ForceQuitTest();
 	bool isDisabled() { return getWorkThreadCount() == -1; }
 
 	std::string getTPMinfo();
 
 	int getWorkThreadCount() { return taskPool->getThreadCount(); }
 
+	void stopTest() { stop_test = true; }
+
 private:
+	bool stop_all = false;
+	bool stop_test = false;
+
 	WorkThreadPool *taskPool = nullptr;
 	ThreadPool *resultPool = nullptr;
 
