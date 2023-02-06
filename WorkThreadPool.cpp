@@ -78,11 +78,12 @@ void WorkThreadPool::ThreadManaging() {
 		std::function<void()> task = NULL;
 		while (true) {
 			std::unique_lock<std::mutex> lock_for_buffer(task_buffer_mutex);
-			task_buffer_cv.wait(lock_for_buffer, [this] { return !task_buffer.empty() || stop_all; });
 			if (task_buffer.empty()) {
-				if (stop_all) break;
+				lock_for_buffer.unlock();
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 				continue;
 			}
+
 			task = std::move(task_buffer.front());
 			task_buffer.pop_front();
 			break;
@@ -127,13 +128,10 @@ bool WorkThreadPool::insertTask(std::function<void()> f) {
 	if (stop_all) {
 	}
 	else {
+		std::lock_guard<std::mutex> lock(task_buffer_mutex);
 		if (task_buffer.size() < max_queue_size || max_queue_size == -1) {
-			{
-				std::lock_guard<std::mutex> lock(task_buffer_mutex);
-				task_buffer.emplace_back(f);
-			}
+			task_buffer.emplace_back(f);
 			isInserted = true;
-			task_buffer_cv.notify_one();
 		}
 	}
 	return isInserted;
