@@ -50,7 +50,7 @@ bool ThreadPoolManager::AddTask(Calc* c) {
 
 void ThreadPoolManager::StopForTestEnd(const size_t& test_count) {
 	while (test_count > test_cnt) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		std::this_thread::yield();
 #ifdef DISPLAY_PROCESSED_TEST
 		std::cout << test_cnt << ", " << taskPool->getAvailableCount() << " is left.\n";
 #endif

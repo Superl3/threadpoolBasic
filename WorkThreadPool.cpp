@@ -39,14 +39,13 @@ void WorkThread::work() {
 			std::unique_lock<std::mutex> lk(thread_mutex);
 			if (task) break;
 			lk.unlock();
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			std::this_thread::yield();
 		}
 #else
 		std::unique_lock<std::mutex> lk(thread_mutex);
 		notifier->InsertAvailableThread(id);
 		thread_cv.wait(lk, [this] { return task; });
 #endif
-
 		task();
 		task = NULL;
 	}
@@ -69,7 +68,7 @@ void WorkThreadPool::ThreadManaging() {
 			std::unique_lock<std::mutex> lock_for_available_buffer(available_thread_mutex);
 			if (available_threads.empty()) {
 				lock_for_available_buffer.unlock();
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+				std::this_thread::yield();
 				continue;
 			}
 			thread = worker_threads[available_threads.front()];
@@ -84,7 +83,7 @@ void WorkThreadPool::ThreadManaging() {
 			std::unique_lock<std::mutex> lock_for_buffer(task_buffer_mutex);
 			if (task_buffer.empty()) {
 				lock_for_buffer.unlock();
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+				std::this_thread::yield();
 				continue;
 			}
 
