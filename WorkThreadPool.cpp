@@ -33,27 +33,31 @@ WorkThread::~WorkThread() {
 }
 void WorkThread::work() {
 	while (!stop || !task) {
-		{
+#ifdef THREAD_POLLING
+		notifier->InsertAvailableThread(id);
+		while (true) {
 			std::unique_lock<std::mutex> lk(thread_mutex);
-			notifier->InsertAvailableThread(id);
-			thread_cv.wait(lk, [this] { return task; });
-			
-			/*while (true) {
-				std::unique_lock<std::mutex> lk(thread_mutex);
-				if (task) break;
-				lk.unlock();
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			}*/
-			task();
-			task = NULL;
+			if (task) break;
+			lk.unlock();
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
+#else
+		std::unique_lock<std::mutex> lk(thread_mutex);
+		notifier->InsertAvailableThread(id);
+		thread_cv.wait(lk, [this] { return task; });
+#endif
+
+		task();
+		task = NULL;
 	}
 }
 #include<string>
 void WorkThread::assignTask(std::function<void()> task_) {
 	std::lock_guard<std::mutex> lk(thread_mutex);
 	task = task_;
+#ifndef THREAD_POOLING
 	thread_cv.notify_one();
+#endif
 }
 
 #include "PerformanceMonitor.h"
