@@ -35,7 +35,6 @@ std::string ThreadPoolManager::getTPMinfo() {
 	return result;
 }
 
-#include<iostream>
 bool ThreadPoolManager::AddTask(Calc* c) {
 	
 	auto workAndResult = [c, this] {
@@ -50,6 +49,7 @@ bool ThreadPoolManager::AddTask(Calc* c) {
 	return taskPool->insertTask(workAndResult);
 }
 
+#include<iostream>
 void ThreadPoolManager::StopForTestEnd(const size_t& test_count) {
 	while (test_count > test_cnt) {
 		if (stop_all || stop_test) break;

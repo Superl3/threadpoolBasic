@@ -28,14 +28,14 @@ WorkThread::WorkThread(int index, ThreadNotifier* noti) : id(index), notifier(no
 
 WorkThread::~WorkThread() {
 	stop = true;
-#ifndef THREAD_POOLING
+#ifndef THREAD_POLLING
 	thread_cv.notify_one();
 #endif
 	thread.join();
 }
 void WorkThread::work() {
 	while (!stop || !task) {
-#ifndef THREAD_POOLING
+#ifndef THREAD_POLLING
 		std::unique_lock<std::mutex> lk(thread_mutex);
 		notifier->InsertAvailableThread(id);
 		thread_cv.wait(lk, [this] { return task || stop; });
@@ -53,16 +53,13 @@ void WorkThread::work() {
 		task = NULL;
 	}
 }
-#include<string>
 void WorkThread::assignTask(std::function<void()> task_) {
 	std::lock_guard<std::mutex> lk(thread_mutex);
 	task = task_;
-#ifndef THREAD_POOLING
+#ifndef THREAD_POLLING
 	thread_cv.notify_one();
 #endif
 }
-
-#include "PerformanceMonitor.h"
 
 void WorkThreadPool::ThreadManaging() {
 	auto takeAvailableThread = [this]() {
@@ -122,8 +119,6 @@ int WorkThreadPool::getQueuedTaskCount() {
 
 void WorkThreadPool::InsertAvailableThread(const size_t& index) {
 
-	//std::string str = std::to_string(index) + "is now available \n";
-	//std::cout << str;
 
 	std::lock_guard<std::mutex> lock(available_thread_mutex);
 	available_threads.push_back(index);
