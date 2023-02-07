@@ -15,4 +15,4 @@
 #define OLD_POOL ThreadPool
 #define NEW_POOL WorkThreadPool
 
-#define POOLMETHOD OLD_POOL
+#define POOLMETHOD NEW_POOL

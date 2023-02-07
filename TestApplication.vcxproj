@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BasicThreadPool.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Output.cpp" />
@@ -150,6 +151,7 @@
     <ClCompile Include="WorkThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BasicThreadPool.h" />
     <ClInclude Include="Calc.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Output.h" />

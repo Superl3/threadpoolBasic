@@ -48,6 +48,9 @@
     <ClCompile Include="WorkThreadPool.cpp">
       <Filter>ThreadPool</Filter>
     </ClCompile>
+    <ClCompile Include="BasicThreadPool.cpp">
+      <Filter>ThreadPool</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TestCreator.h">
@@ -78,6 +81,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="WorkThreadPool.h">
+      <Filter>ThreadPool</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicThreadPool.h">
       <Filter>ThreadPool</Filter>
     </ClInclude>
   </ItemGroup>

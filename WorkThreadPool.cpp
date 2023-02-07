@@ -3,7 +3,7 @@
 #include<iostream>
 
 WorkThreadPool::WorkThreadPool(const int& num_threads, int max_queue_size_)
-	: worker_thread_count(num_threads), max_queue_size(max_queue_size_), stop_all(false) {
+	: BasicThreadPool(num_threads, max_queue_size_) {
 	if (worker_thread_count > 0) {
 		for (size_t i = 0; i < worker_thread_count; ++i) {
 			auto thread = new WorkThread(i, this);
@@ -111,10 +111,6 @@ int WorkThreadPool::getAvailableCount() {
 	ret = available_threads.size();
 	available_thread_mutex.unlock();
 	return ret;
-}
-
-int WorkThreadPool::getQueuedTaskCount() {
-	return task_buffer.size();
 }
 
 void WorkThreadPool::InsertAvailableThread(const size_t& index) {

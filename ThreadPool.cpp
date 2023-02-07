@@ -1,7 +1,7 @@
 #include "ThreadPool.h"
 
 ThreadPool::ThreadPool(const int& num_threads, int max_queue_size_)
-	: worker_thread_count(num_threads), max_queue_size(max_queue_size_), stop_all(false) {
+	: BasicThreadPool(num_threads, max_queue_size_) {
 	if (worker_thread_count > 0)
 		for (size_t i = 0; i < worker_thread_count; ++i)
 			worker_threads.emplace_back([this] { this->work(); });
@@ -34,9 +34,6 @@ void ThreadPool::work() {
 
 int ThreadPool::getAvailableCount() {
 	return -1;
-}
-int ThreadPool::getQueuedTaskCount() {
-	return task_buffer.size();
 }
 
 bool ThreadPool::insertTask(std::function<void()> f) {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "BasicThreadPool.h"
+
 #include <deque>
 #include <thread>
 #include <mutex>
@@ -36,29 +38,20 @@ public:
 	void assignTask(std::function<void()> task_);
 };
 
-class WorkThreadPool : public ThreadNotifier{
+class WorkThreadPool : public ThreadNotifier, public BasicThreadPool{
 public:
 	WorkThreadPool(const int& num_threads, int queue_size = -1);
 	~WorkThreadPool();
 
-	void InsertAvailableThread(const size_t &index);
-
 	// return false if queue is full or threadpool done
-	bool insertTask(std::function<void()> f);
+	bool insertTask(std::function<void()> f) override;
 
-	int getThreadCount() { return worker_thread_count; }
-	int getQueueSize() { return max_queue_size; }
+	int getAvailableCount() override;
 
-	int getQueuedTaskCount();
-
-	int getAvailableCount();
+	void InsertAvailableThread(const size_t& index);
 
 private:
 	void ThreadManaging();
-
-	// 총 Worker 쓰레드의 개수.
-	const int max_queue_size;
-	const int worker_thread_count;
 
 	std::thread managing_thread;
 
@@ -68,15 +61,5 @@ private:
 	std::deque<int> available_threads;
 	std::mutex available_thread_mutex;
 
-	// 할일들을 보관하는 job 큐.
-	std::deque<std::function<void()>> task_buffer;
-	// 위의 job 큐를 위한 cv 와 m.
-	std::condition_variable task_buffer_cv;
 	std::mutex task_buffer_mutex;
-
-
-	// 모든 쓰레드 종료
-	bool stop_all;
-
-	// Worker 쓰레드
 };
