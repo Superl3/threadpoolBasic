@@ -11,3 +11,8 @@
 //#define DISPLAY_PROCESSED_TEST 1
 
 #define TEST_FILE TEST_1000000
+
+#define OLD_POOL ThreadPool
+#define NEW_POOL WorkThreadPool
+
+#define POOLMETHOD OLD_POOL

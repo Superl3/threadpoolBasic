@@ -57,6 +57,10 @@ void ThreadPool::work() {
 	}
 }
 
+int ThreadPool::getAvailableCount() {
+	return -1;
+}
+
 int ThreadPool::getCurrentWorkingThread() {
 	int cnt = 0;
 	{

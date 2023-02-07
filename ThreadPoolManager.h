@@ -23,8 +23,8 @@ private:
 	bool stop_all = false;
 	bool stop_test = false;
 
-	WorkThreadPool *taskPool = nullptr;
-	WorkThreadPool *resultPool = nullptr;
+	POOLMETHOD*taskPool = nullptr;
+	POOLMETHOD*resultPool = nullptr;
 
 	std::mutex test_cnt_mutex;
 	size_t test_cnt = 0;

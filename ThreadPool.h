@@ -20,6 +20,8 @@ public:
 	int getQueueSize() { return max_queue_size; }
 
 	int getCurrentWorkingThread();
+
+	int getAvailableCount();
 	int getQueuedTaskCount();
 
 private:

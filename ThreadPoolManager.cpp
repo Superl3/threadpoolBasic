@@ -1,7 +1,7 @@
 #include"ThreadPoolManager.h"
 
 ThreadPoolManager::ThreadPoolManager(const int& work_thread_count, const int&output_thread_count, int& max_queue_size)
-	: taskPool(new WorkThreadPool(work_thread_count, max_queue_size)), resultPool(new WorkThreadPool(output_thread_count))
+	: taskPool(new POOLMETHOD(work_thread_count, max_queue_size)), resultPool(new POOLMETHOD(output_thread_count))
 {
 }
 
