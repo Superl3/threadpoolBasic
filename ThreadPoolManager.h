@@ -24,7 +24,7 @@ private:
 	bool stop_test = false;
 
 	WorkThreadPool *taskPool = nullptr;
-	ThreadPool *resultPool = nullptr;
+	WorkThreadPool *resultPool = nullptr;
 
 	std::mutex test_cnt_mutex;
 	size_t test_cnt = 0;
