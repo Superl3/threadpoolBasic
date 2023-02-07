@@ -14,19 +14,14 @@ public:
 	// return false if queue is full or threadpool done
 	bool insertTask(std::function<void()> f);
 
-	void restartWorkers();
-	void forceRestartWorkers();
 	int getThreadCount() { return worker_thread_count; }
 	int getQueueSize() { return max_queue_size; }
-
-	int getCurrentWorkingThread();
 
 	int getAvailableCount();
 	int getQueuedTaskCount();
 
 private:
 
-	std::map<std::thread::id, bool> worker_thread_status;
 	// 총 Worker 쓰레드의 개수.
 	const int max_queue_size;
 	const int worker_thread_count;
@@ -43,9 +38,6 @@ private:
 
 	// 모든 쓰레드 종료
 	bool stop_all;
-
-	void createWorkers();
-	void stopWorkers();
 
 	// Worker 쓰레드
 	void work();
