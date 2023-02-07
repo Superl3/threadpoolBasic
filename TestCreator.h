@@ -6,14 +6,14 @@
 
 class TestCreator {
 public:
-	TestCreator(size_t test_size_input = 10);
-	~TestCreator();
+	TestCreator() {}
+	~TestCreator() {}
 
-	void createData();
+	bool readData(const std::string& test_data_name);
+	void createData(const size_t &test_size_);
 	std::deque<calcData*> getCreatedTest();
 	bool getSingleTest(calcData* singleData);
 
 private:
 	std::deque<calcData*> test_data;
-	const size_t test_size;
 };

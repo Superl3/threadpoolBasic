@@ -12,7 +12,7 @@
 #include<iostream>
 class Input {
 public:
-	Input(ThreadPoolManager *tpm_, Output *output, size_t test_case_count_);
+	Input(ThreadPoolManager *tpm_, TestCreator* tc_, Output *output, size_t test_case_count_);
 	~Input();
 
 	void execute();

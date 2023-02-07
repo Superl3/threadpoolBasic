@@ -1,15 +1,61 @@
 #include "TestCreator.h"
+#include "Utility.h"
 
 #include <random>
 
-TestCreator::TestCreator(size_t test_size_input) : test_size(test_size_input) {
-    createData();
+bool TestCreator::readData(const std::string& test_file_name) {
+
+    auto createCalcData = [](const int &a, const char& op, const int& b) -> calcData {
+
+		calcData output;
+		output.first = a;
+
+		switch (op) {
+		case '+':
+			output.op = OPERATOR::PLUS;
+			break;
+		case '-':
+			output.op = OPERATOR::MINUS;
+			break;
+		case '*':
+			output.op = OPERATOR::MULTIPLY;
+			break;
+		case '/':
+			output.op = OPERATOR::DIVIDE;
+			break;
+		}
+		output.second = b;
+		return output;
+    };
+
+    std::ifstream in(test_file_name);
+    if (!in.is_open()) {
+        return false;
+    }
+
+    int total = 0, success = 0;
+
+    //std::string a, op, b, result, time;
+    int a;
+    char op;
+    int b;
+    int result;
+    int time;
+    do {
+        in >> a >> op >> b >> result >> time;
+        if (in.fail()) break;
+        auto data = new calcData(createCalcData(a, op, b));
+
+        test_data.emplace_back(data);
+    } while (!in.eof());
+
+    if (test_data.empty())
+        return false;
+    
+    return true;
 }
 
-TestCreator::~TestCreator() {
-}
-
-void TestCreator::createData() {    
+void TestCreator::createData(const size_t &test_size_) {    
     std::mt19937 mtRand;
     auto createSample = [&mtRand]() -> calcData {
         calcData sample{ mtRand() % 1000 + 1, mtRand() % 1000 + 1};
@@ -33,7 +79,7 @@ void TestCreator::createData() {
 
     test_data.clear();
 
-    for (int i = 0; i < test_size; i++) {
+    for (int i = 0; i < test_size_; i++) {
 
         auto temp = createSample();
 

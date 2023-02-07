@@ -8,6 +8,7 @@
 
 int main(int argc, char* argv[]) {
 
+
 	int thread_count = THREAD_COUNT;
 	if (argc >= 2) thread_count = atoi(argv[1]);
 	//else {
@@ -36,12 +37,23 @@ int main(int argc, char* argv[]) {
 	//	std::cin >> test_case_count;
 	//}
 
+	std::string test_file_name = TEST_FILE;
+	TestCreator* tc = new TestCreator();
+
+	if (test_file_name == "none") {
+		tc->createData(test_case_count);
+	}
+	else {
+		if (!tc->readData(test_file_name))
+			tc->createData(test_case_count);
+	}
+
 	int output_thread_count = 1;
 
 	ThreadPoolManager* tpm = new ThreadPoolManager(thread_count, output_thread_count, max_queue_size);
 	Output *output = new Output(log_file_name);
 
-	Input *input = new Input(tpm, output, test_case_count);
+	Input *input = new Input(tpm, tc, output, test_case_count);
 	input->execute();
 	while (!input->isDone())
 	{
