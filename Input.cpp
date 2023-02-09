@@ -90,32 +90,31 @@ void Input::doTest() {
 	test_time_checker = new GlobalPerformanceMonitor();
 	auto testData = test_creator->getCreatedTest();
 	test_time_checker->testStart();
-
-	if (!tpm->isDisabled()) {
-		for (auto data : testData) {
-			if (!insertTask(data, true)) {
-				std::cout << "ERROR Occurred while testing.\n";
-				stop_test = true;
-				tpm->stopTest();
-			}
-			if (stop_test) break;
+#ifndef FORLOOP
+	for (auto data : testData) {
+		if (!insertTask(data, true)) {
+			std::cout << "ERROR Occurred while testing.\n";
+			stop_test = true;
+			tpm->stopTest();
 		}
-	}
-	else {
-		for (auto data : testData) {
-			auto calc = calcFactory(data, output, true);
-			calc->execute();
-			if (stop_test) break;
-		}
+		if (stop_test) break;
 	}
 	tpm->StopForTestEnd(testData.size());
+#else
+	for (auto data : testData) {
+		auto calc = calcFactory(data, output, true);
+		calc->execute();
+		if (stop_test) break;
+	}
+#endif
+
 
 	if (!stop_test && !stop_input) {
 		test_time_checker->setEndTimer();
 		std::cout << "THREAD COUNT : " << tpm->getWorkThreadCount() << " TESTCASE COUNT : " << testData.size() << "\n" <<
 			"TOTAL RUNNING TIME : " << test_time_checker->getRunningTime() << "ms\n";
 	}
-	delete test_time_checker; 
+	delete test_time_checker;
 	stop_test = true;
 }
 

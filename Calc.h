@@ -32,6 +32,7 @@ public:
 	}
 
 	int execute() {
+		timeTaskSleep;
 		result = calculate(input_ref->first, input_ref->second);
 		performance_monitor.setEndTimer();
 		return result;
